@@ -44,6 +44,7 @@
 		2D4E0EC32BCB80AF005D7C78 /* stocksearchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = stocksearchUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D4E0EC72BCB80AF005D7C78 /* stocksearchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = stocksearchUITests.swift; sourceTree = "<group>"; };
 		2D4E0EC92BCB80AF005D7C78 /* stocksearchUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = stocksearchUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		2D4E0ED62BCB8B7C005D7C78 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +95,7 @@
 		2D4E0EAB2BCB80AC005D7C78 /* stocksearch */ = {
 			isa = PBXGroup;
 			children = (
+				2D4E0ED62BCB8B7C005D7C78 /* Info.plist */,
 				2D4E0EAC2BCB80AC005D7C78 /* stocksearchApp.swift */,
 				2D4E0EAE2BCB80AC005D7C78 /* ContentView.swift */,
 				2D4E0EB02BCB80AE005D7C78 /* Assets.xcassets */,
@@ -424,9 +426,9 @@
 				DEVELOPMENT_ASSET_PATHS = "\"stocksearch/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = stocksearch/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -452,9 +454,9 @@
 				DEVELOPMENT_ASSET_PATHS = "\"stocksearch/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = stocksearch/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
