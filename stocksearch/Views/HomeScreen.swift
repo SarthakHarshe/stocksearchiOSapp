@@ -13,19 +13,29 @@ struct HomeScreen: View {
     var body: some View {
         NavigationStack {
             List {
-                //list content
-                DateView(currentDate: viewModel.dateViewModel.currentDate)
+                // Date Section
+                Section {
+                    DateView(currentDate: viewModel.dateViewModel.currentDate)
+                }
+                
+                
+                // Portfolio Section
+                Section(header: Text("Portfolio").font(.headline)) {
+                    PortfolioView(viewModel: viewModel.portfolioViewModel)
+                }
             }
             .navigationTitle("Stocks")
             .toolbar {
                 EditButton()
-        }
+            }
+           
         }
     }
 }
 
 class HomeScreenViewModel: ObservableObject {
     @Published var dateViewModel = DateViewModel()
+    @Published var portfolioViewModel = PortfolioViewModel()
 }
 
 struct HomeScreen_Previews: PreviewProvider {
