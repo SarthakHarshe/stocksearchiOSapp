@@ -14,6 +14,11 @@
 		2D4E0EBE2BCB80AF005D7C78 /* stocksearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4E0EBD2BCB80AF005D7C78 /* stocksearchTests.swift */; };
 		2D4E0EC82BCB80AF005D7C78 /* stocksearchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4E0EC72BCB80AF005D7C78 /* stocksearchUITests.swift */; };
 		2D4E0ECA2BCB80AF005D7C78 /* stocksearchUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4E0EC92BCB80AF005D7C78 /* stocksearchUITestsLaunchTests.swift */; };
+		2D4E0ED82BCBA775005D7C78 /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4E0ED72BCBA775005D7C78 /* HomeScreen.swift */; };
+		2D4E0EDA2BCBAAAC005D7C78 /* DateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4E0ED92BCBAAAC005D7C78 /* DateViewModel.swift */; };
+		2D4E0EDE2BCBAC3A005D7C78 /* DateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4E0EDD2BCBAC3A005D7C78 /* DateView.swift */; };
+		2D4E0EE22BCBB504005D7C78 /* PortfolioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4E0EE12BCBB504005D7C78 /* PortfolioView.swift */; };
+		2D4E0EE42BCBB518005D7C78 /* PortfolioViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4E0EE32BCBB518005D7C78 /* PortfolioViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +50,11 @@
 		2D4E0EC72BCB80AF005D7C78 /* stocksearchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = stocksearchUITests.swift; sourceTree = "<group>"; };
 		2D4E0EC92BCB80AF005D7C78 /* stocksearchUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = stocksearchUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		2D4E0ED62BCB8B7C005D7C78 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		2D4E0ED72BCBA775005D7C78 /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
+		2D4E0ED92BCBAAAC005D7C78 /* DateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateViewModel.swift; sourceTree = "<group>"; };
+		2D4E0EDD2BCBAC3A005D7C78 /* DateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateView.swift; sourceTree = "<group>"; };
+		2D4E0EE12BCBB504005D7C78 /* PortfolioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioView.swift; sourceTree = "<group>"; };
+		2D4E0EE32BCBB518005D7C78 /* PortfolioViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +108,8 @@
 				2D4E0ED62BCB8B7C005D7C78 /* Info.plist */,
 				2D4E0EAC2BCB80AC005D7C78 /* stocksearchApp.swift */,
 				2D4E0EAE2BCB80AC005D7C78 /* ContentView.swift */,
+				2D4E0EDF2BCBB4E4005D7C78 /* Views */,
+				2D4E0EE02BCBB4EE005D7C78 /* Models */,
 				2D4E0EB02BCB80AE005D7C78 /* Assets.xcassets */,
 				2D4E0EB22BCB80AE005D7C78 /* Preview Content */,
 			);
@@ -127,6 +139,25 @@
 				2D4E0EC92BCB80AF005D7C78 /* stocksearchUITestsLaunchTests.swift */,
 			);
 			path = stocksearchUITests;
+			sourceTree = "<group>";
+		};
+		2D4E0EDF2BCBB4E4005D7C78 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2D4E0ED72BCBA775005D7C78 /* HomeScreen.swift */,
+				2D4E0EDD2BCBAC3A005D7C78 /* DateView.swift */,
+				2D4E0EE12BCBB504005D7C78 /* PortfolioView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		2D4E0EE02BCBB4EE005D7C78 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2D4E0ED92BCBAAAC005D7C78 /* DateViewModel.swift */,
+				2D4E0EE32BCBB518005D7C78 /* PortfolioViewModel.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -259,8 +290,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2D4E0EDE2BCBAC3A005D7C78 /* DateView.swift in Sources */,
+				2D4E0EE22BCBB504005D7C78 /* PortfolioView.swift in Sources */,
+				2D4E0EDA2BCBAAAC005D7C78 /* DateViewModel.swift in Sources */,
+				2D4E0EE42BCBB518005D7C78 /* PortfolioViewModel.swift in Sources */,
 				2D4E0EAF2BCB80AC005D7C78 /* ContentView.swift in Sources */,
 				2D4E0EAD2BCB80AC005D7C78 /* stocksearchApp.swift in Sources */,
+				2D4E0ED82BCBA775005D7C78 /* HomeScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
