@@ -7,46 +7,66 @@
 
 import SwiftUI
 import Combine
+import Alamofire
 
 struct StockSymbol: Identifiable, Decodable {
     let description: String
     let displaySymbol: String
     let symbol: String
     let type: String
-
-    // Conform to Identifiable by providing a unique ID
     var id: String { symbol }
 }
 
-
+@MainActor
 class SearchViewModel: ObservableObject {
     @Published var searchText = ""
     @Published var searchResults: [StockSymbol] = []
     private var cancellables = Set<AnyCancellable>()
-    private let debouncePeriod: TimeInterval = 0.2
 
     init() {
         $searchText
             .removeDuplicates()
-            .debounce(for: .seconds(debouncePeriod), scheduler: RunLoop.main)
-            .map { $0.uppercased() }
-            .sink { [weak self] in self?.fetchSuggestions(query: $0) }
+            .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+            .sink { [weak self] searchText in
+                self?.processSearchText(searchText.trimmingCharacters(in: .whitespacesAndNewlines))
+            }
             .store(in: &cancellables)
     }
 
-    func fetchSuggestions(query: String) {
-        guard !query.isEmpty else {
-            searchResults = []
+    private func processSearchText(_ searchText: String) {
+        guard !searchText.isEmpty else {
+            self.searchResults = []
             return
         }
 
+        fetchSuggestions(query: searchText)
+    }
+
+    func fetchSuggestions(query: String) {
         let urlString = "http://localhost:3000/autocomplete?q=\(query)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        guard let url = URL(string: urlString) else { return }
-        URLSession.shared.dataTaskPublisher(for: url)
-            .map(\.data)
-            .decode(type: [StockSymbol].self, decoder: JSONDecoder())
-            .replaceError(with: [])
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$searchResults)
+        guard let url = URL(string: urlString) else {
+            self.searchResults = []
+            return
+        }
+
+        AF.request(url, method: .get).validate().responseDecodable(of: [StockSymbol].self) { response in
+            switch response.result {
+            case .success(let results):
+                self.searchResults = results
+                print("Received results: \(results.count)")
+            case .failure(let error):
+                print("Error fetching data: \(error.localizedDescription)")
+                self.searchResults = []
+            }
+        }
     }
 }
+
+
+
+
+
+
+
+
+

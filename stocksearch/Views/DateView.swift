@@ -18,7 +18,7 @@ struct DateView: View {
                 .foregroundColor(Color.gray)
             Spacer()
         }
-        .padding()
+        .padding(3)
     }
 }
 

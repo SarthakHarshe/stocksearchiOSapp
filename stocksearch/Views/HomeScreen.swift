@@ -8,66 +8,48 @@
 import SwiftUI
 
 struct HomeScreen: View {
-    @StateObject var viewModel = HomeScreenViewModel()
-    @State private var isSearching = false
-    
+    @StateObject var dateViewModel = DateViewModel()
+    @StateObject var portfolioViewModel = PortfolioViewModel()
+    @StateObject var searchViewModel = SearchViewModel()
+    @State private var isSearching = false  // Ensure this is correctly declared
+
     var body: some View {
         NavigationStack {
             List {
-                
-                // Search Bar Section
-                if isSearching {
-                    ForEach(viewModel.searchViewModel.searchResults) { stockSymbol in
-                        Button(action: {
-                            // Handle the selection, potentially navigate to details view
-                            // For now, we'll just print the symbol
-                            print("Selected symbol: \(stockSymbol.symbol)")
-                        }) {
+                if !searchViewModel.searchText.isEmpty {
+                    ForEach(searchViewModel.searchResults) { stockSymbol in
                             VStack(alignment: .leading) {
                                 Text(stockSymbol.symbol)
+                                    .font(.headline)
                                     .fontWeight(.bold)
                                 Text(stockSymbol.description)
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
                             }
-                        }
+                    }
+                } else {
+                    Section {
+                        DateView(currentDate: dateViewModel.currentDate)
+                    }
+                    
+                    Section(header: Text("Portfolio")) {
+                        PortfolioView(viewModel: portfolioViewModel)
                     }
                 }
-                
-                
-                if !isSearching {
-                                   Section {
-                                       DateView(currentDate: viewModel.dateViewModel.currentDate)
-                                   }
-                                   
-                                   Section(header: Text("Portfolio").font(.headline)) {
-                                       PortfolioView(viewModel: viewModel.portfolioViewModel)
-                                   }
-                               }
             }
             .navigationTitle("Stocks")
-            .searchable(text: $viewModel.searchViewModel.searchText, placement: .navigationBarDrawer(displayMode: .always)) {
-                // The empty placeholder ensures that suggestions do not pop up on the navigation bar.
-            }
-            .onChange(of: viewModel.searchViewModel.searchText, initial: false) { oldSearchText, newSearchText in
-                isSearching = !newSearchText.isEmpty
-                if !isSearching {
-                                   // Collapse the search results when search text is cleared
-                                   viewModel.searchViewModel.searchResults.removeAll()
-                               }
+            .searchable(text: $searchViewModel.searchText, placement: .navigationBarDrawer(displayMode: .always))
+            .onChange(of: searchViewModel.searchText, initial: true) { _, newValue in
+                isSearching = !newValue.isEmpty
+                if newValue.isEmpty {
+                    searchViewModel.searchResults.removeAll()
+                }
             }
             .toolbar {
                 EditButton()
             }
-            
         }
     }
-}
-
-class HomeScreenViewModel: ObservableObject {
-    @Published var dateViewModel = DateViewModel()
-    @Published var portfolioViewModel = PortfolioViewModel()
-    @Published var searchViewModel = SearchViewModel()
 }
 
 struct HomeScreen_Previews: PreviewProvider {
@@ -75,3 +57,6 @@ struct HomeScreen_Previews: PreviewProvider {
         HomeScreen()
     }
 }
+
+
+
