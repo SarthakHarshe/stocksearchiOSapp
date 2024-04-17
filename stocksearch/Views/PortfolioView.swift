@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PortfolioView: View {
     @ObservedObject var viewModel: PortfolioViewModel
-
+    
     var body: some View {
         VStack() {
             // Top section for Net Worth and Cash Balance
@@ -31,40 +31,49 @@ struct PortfolioView: View {
                 }
             }
             Divider()
-
+            
             // List of Stocks
-            ForEach(viewModel.stocks) { stock in
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(stock.symbol)
-                            .font(.headline)
-                        Text("\(stock.quantity) shares")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    Spacer()
-                    
-                    VStack(alignment: .trailing) {
-                        Text("$\(stock.currentPrice, specifier: "%.2f")")
-                            .font(.subheadline)
-                        HStack(spacing: 2) {
-                            Image(systemName: "arrow.up.right") // Replace with appropriate image based on price change
-                                .foregroundColor(stock.changeFromTotalCost >= 0 ? .green : .red)
-                            Text("$\(stock.changeFromTotalCost, specifier: "%.2f") (\(stock.changeFromTotalCostPercentage, specifier: "%.2f")%)")
+                ForEach(viewModel.stocks) { stock in
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(stock.symbol)
+                                .font(.headline)
+                            Text("\(stock.quantity) shares")
                                 .font(.subheadline)
-                                .foregroundColor(stock.changeFromTotalCost >= 0 ? .green : .red)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        VStack(alignment: .trailing) {
+                            Text("$\(stock.currentPrice, specifier: "%.2f")")
+                                .font(.subheadline)
+                            HStack(spacing: 2) {
+                                Image(systemName: stock.changeFromTotalCost >= 0 ? "arrow.up.right" : "arrow.down.right")
+                                    .foregroundColor(stock.changeFromTotalCost >= 0 ? .green : .red)
+                                Text("$\(stock.changeFromTotalCost, specifier: "%.2f") (\(stock.changeFromTotalCostPercentage, specifier: "%.2f")%)")
+                                    .font(.subheadline)
+                                    .foregroundColor(stock.changeFromTotalCost >= 0 ? .green : .red)
+                            }
                         }
                     }
+                    .background(Color.white)
                 }
-                .background(Color.white)
-            }
-            
+                .onDelete(perform: viewModel.deleteStock)
+                .onMove(perform: viewModel.moveStock)
         }
         .onAppear {
             viewModel.fetchPortfolio()
+            viewModel.startUpdatingPrices()
         }
+        .onDisappear {
+                    viewModel.stopUpdatingPrices()
+                }
+        .onReceive(viewModel.$stocks) { _ in
+                    viewModel.calculateNetWorth()
+                }
     }
+   
 }
 
 struct PortfolioView_Previews: PreviewProvider {

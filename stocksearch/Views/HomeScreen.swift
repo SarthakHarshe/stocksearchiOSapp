@@ -11,7 +11,8 @@ struct HomeScreen: View {
     @StateObject var dateViewModel = DateViewModel()
     @StateObject var portfolioViewModel = PortfolioViewModel()
     @StateObject var searchViewModel = SearchViewModel()
-    @State private var isSearching = false  // Ensure this is correctly declared
+    @StateObject var favoritesViewModel = FavoritesViewModel()
+    @State private var isSearching = false
 
     var body: some View {
         NavigationStack {
@@ -35,6 +36,17 @@ struct HomeScreen: View {
                     Section(header: Text("Portfolio")) {
                         PortfolioView(viewModel: portfolioViewModel)
                     }
+                    
+                    Section(header: Text("Favorites")) {
+                                            FavoritesView(viewModel: favoritesViewModel)
+                    }
+                    
+                    Section {
+                                        Link("Powered by Finnhub.io", destination: URL(string: "https://www.finnhub.io")!)
+                                            .frame(maxWidth: .infinity, alignment: .center)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
                 }
             }
             .navigationTitle("Stocks")

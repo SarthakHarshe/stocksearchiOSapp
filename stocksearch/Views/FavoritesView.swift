@@ -2,7 +2,7 @@
 //  FavoritesView.swift
 //  stocksearch
 //
-//  Created by Sarthak Harshe on 4/14/24.
+//  Created by Sarthak Harshe on 4/16/24.
 //
 
 import SwiftUI
@@ -12,7 +12,7 @@ struct FavoritesView: View {
 
     var body: some View {
         VStack {
-                List(viewModel.favorites) { stock in
+                ForEach(viewModel.favorites) { stock in
                     HStack {
                         VStack(alignment: .leading) {
                             Text(stock.symbol)
@@ -21,39 +21,36 @@ struct FavoritesView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
-                        
                         Spacer()
-                        
                         VStack(alignment: .trailing) {
                             Text("$\(stock.currentPrice, specifier: "%.2f")")
                                 .font(.subheadline)
                             HStack(spacing: 2) {
-                                Image(systemName: (stock.priceChange ?? 0) >= 0 ? "arrow.up.right" : "arrow.down.right")
-                                    .foregroundColor((stock.priceChange ?? 0) >= 0 ? .green : .red)
-                                Text("\((stock.priceChange ?? 0), specifier: "%.2f") (\((stock.priceChangePercentage ?? 0), specifier: "%.2f")%)")
+                                Image(systemName: stock.change >= 0 ? "arrow.up.right" : "arrow.down.right")
+                                    .foregroundColor(stock.change >= 0 ? .green : .red)
+                                Text("$\(stock.change, specifier: "%.2f") (\(stock.changePercentage, specifier: "%.2f")%)")
                                     .font(.subheadline)
-                                    .foregroundColor((stock.priceChange ?? 0) >= 0 ? .green : .red)
+                                    .foregroundColor(stock.change >= 0 ? .green : .red)
                             }
                         }
                     }
+                    .background(Color.white)
                 }
-            
-
-            if !viewModel.errorMessage.isEmpty {
-                            Text(viewModel.errorMessage)
-                                .foregroundColor(.red)
-                        }
+                .onDelete(perform: viewModel.deleteFavorite)
+                .onMove(perform: viewModel.moveFavorite)
         }
         .onAppear {
             viewModel.fetchFavorites()
+            viewModel.startUpdatingFavorites()
+        }
+        .onDisappear {
+                    viewModel.stopUpdatingFavorites()
         }
     }
 }
 
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = FavoritesViewModel()
-        FavoritesView(viewModel: viewModel)
+        FavoritesView(viewModel: FavoritesViewModel())
     }
 }
-

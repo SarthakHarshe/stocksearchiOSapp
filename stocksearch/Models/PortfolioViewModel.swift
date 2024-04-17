@@ -7,6 +7,7 @@
 
 import Foundation
 import Alamofire
+import Combine
 
 class PortfolioViewModel: ObservableObject {
     @Published var stocks: [Stock] = []
@@ -14,6 +15,7 @@ class PortfolioViewModel: ObservableObject {
     @Published var netWorth: Double = 0
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    var timer: AnyCancellable?
 
     // URLs for the backend endpoints
     private let portfolioURL = "http://localhost:3000/portfolio"
@@ -96,6 +98,45 @@ class PortfolioViewModel: ObservableObject {
             }
         }
     }
+    
+    func startUpdatingPrices() {
+        // Start a timer that triggers every 15 seconds
+        timer = Timer.publish(every: 15, on: .main, in: .common).autoconnect()
+            .sink { [weak self] _ in
+                self?.updateStockPrices()
+                self?.calculateNetWorth()
+                // Optionally update other values like Net Worth if they depend on other data
+            }
+    }
+    
+    // Call this function to stop the timer if needed
+        func stopUpdatingPrices() {
+            timer?.cancel()
+        }
+    
+    func deleteStock(at offsets: IndexSet) {
+        offsets.forEach { index in
+            let stock = stocks[index]
+            AF.request("http://localhost:3000/portfolio/\(stock.symbol)", method: .delete)
+                .validate()
+                .response { response in
+                    DispatchQueue.main.async {
+                        if response.error == nil {
+                            self.stocks.remove(at: index)
+                            self.calculateNetWorth()
+                        } else {
+                            // Handle the error properly later
+                        }
+                    }
+                }
+        }
+    }
+    
+    func moveStock(from source: IndexSet, to destination: Int) {
+        stocks.move(fromOffsets: source, toOffset: destination)
+    }
+
+
 }
 
 // Data structures for decoding JSON from the backend
