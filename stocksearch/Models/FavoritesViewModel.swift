@@ -14,6 +14,11 @@ class FavoritesViewModel: ObservableObject {
     @Published var favorites: [FavoriteStock] = []
     private let favoritesURL = "http://localhost:3000/watchlist"
     var timer: AnyCancellable?
+    
+    init() {
+        fetchFavorites()
+        startUpdatingFavorites()
+    }
 
     func fetchFavorites() {
         AF.request(favoritesURL, method: .get)

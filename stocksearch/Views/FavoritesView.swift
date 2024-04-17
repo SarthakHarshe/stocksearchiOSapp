@@ -12,39 +12,60 @@ struct FavoritesView: View {
 
     var body: some View {
         VStack {
-                ForEach(viewModel.favorites) { stock in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(stock.symbol)
-                                .font(.headline)
-                            Text(stock.name)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
-                        Spacer()
-                        VStack(alignment: .trailing) {
-                            Text("$\(stock.currentPrice, specifier: "%.2f")")
-                                .font(.subheadline)
-                            HStack(spacing: 2) {
-                                Image(systemName: stock.change >= 0 ? "arrow.up.right" : "arrow.down.right")
-                                    .foregroundColor(stock.change >= 0 ? .green : .red)
-                                Text("$\(stock.change, specifier: "%.2f") (\(stock.changePercentage, specifier: "%.2f")%)")
-                                    .font(.subheadline)
-                                    .foregroundColor(stock.change >= 0 ? .green : .red)
-                            }
-                        }
-                    }
-                    .background(Color.white)
-                }
-                .onDelete(perform: viewModel.deleteFavorite)
-                .onMove(perform: viewModel.moveFavorite)
+            headerView
+            Divider()
+            favoritesListView
         }
         .onAppear {
             viewModel.fetchFavorites()
             viewModel.startUpdatingFavorites()
         }
         .onDisappear {
-                    viewModel.stopUpdatingFavorites()
+            viewModel.stopUpdatingFavorites()
+        }
+    }
+
+    private var headerView: some View {
+        HStack {
+            Text("Favorites").font(.title2).fontWeight(.semibold)
+        }
+    }
+
+    private var favoritesListView: some View {
+        ForEach(viewModel.favorites) { favorite in
+            FavoriteStockRow(favorite: favorite)
+        }
+        .onDelete(perform: viewModel.deleteFavorite)
+        .onMove(perform: viewModel.moveFavorite)
+    }
+}
+
+// Inner view for displaying a single favorite stock
+struct FavoriteStockRow: View {
+    var favorite: FavoriteStock  // Single favorite stock object
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(favorite.symbol).font(.headline)
+                Text(favorite.name).font(.subheadline).foregroundColor(.secondary)
+            }
+            Spacer()
+            VStack(alignment: .trailing) {
+                Text("$\(favorite.currentPrice, specifier: "%.2f")").font(.subheadline)
+                priceChangeView
+            }
+        }
+        .background(Color.white)  // Consistent background as portfolio rows
+    }
+
+    private var priceChangeView: some View {
+        HStack(spacing: 2) {
+            Image(systemName: favorite.change >= 0 ? "arrow.up.right" : "arrow.down.right")
+                .foregroundColor(favorite.change >= 0 ? .green : .red)
+            Text("$\(favorite.change, specifier: "%.2f") (\(favorite.changePercentage, specifier: "%.2f")%)")
+                .font(.subheadline)
+                .foregroundColor(favorite.change >= 0 ? .green : .red)
         }
     }
 }
@@ -54,3 +75,4 @@ struct FavoritesView_Previews: PreviewProvider {
         FavoritesView(viewModel: FavoritesViewModel())
     }
 }
+
