@@ -19,13 +19,15 @@ struct HomeScreen: View {
             List {
                 if !searchViewModel.searchText.isEmpty {
                     ForEach(searchViewModel.searchResults) { stockSymbol in
-                        VStack(alignment: .leading) {
-                            Text(stockSymbol.symbol)
-                                .font(.headline)
-                                .fontWeight(.bold)
-                            Text(stockSymbol.description)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
+                        NavigationLink(destination: StockDetailsView(symbol: stockSymbol.symbol)) {
+                            VStack(alignment: .leading) {
+                                Text(stockSymbol.symbol)
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                Text(stockSymbol.description)
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                            }
                         }
                     }
                 } else {
@@ -37,18 +39,24 @@ struct HomeScreen: View {
                         // Accessing the header function from the PortfolioView.swift file
                         PortfolioView(viewModel: portfolioViewModel).headerView
                         ForEach(portfolioViewModel.stocks) { stock in
-                            PortfolioStockRow(stock: stock) // Using the row view here
+                            NavigationLink(destination: StockDetailsView(symbol: stock.symbol)) {
+                                PortfolioStockRow(stock: stock) // Using the row view here
+                            }
                         }
                         .onMove(perform: portfolioViewModel.moveStock)
                     }
                     
                     Section(header: Text("Favorites")) {
                         ForEach(favoritesViewModel.favorites) { favorite in
-                            FavoriteStockRow(favorite: favorite)
-//                            print(favorite.symbol)
+                            NavigationLink(destination: StockDetailsView(symbol: favorite.symbol)) {
+                                FavoriteStockRow(favorite: favorite)
+                            }
                         }
                         .onDelete(perform: favoritesViewModel.deleteFavorite)
                         .onMove(perform: favoritesViewModel.moveFavorite)
+                    }
+                    .onAppear {
+                        favoritesViewModel.fetchFavorites()
                     }
                     
                     Section {
@@ -69,6 +77,7 @@ struct HomeScreen: View {
             }
         }
     }
+       
 
     private func poweredByLink() -> some View {
         Link("Powered by Finnhub.io", destination: URL(string: "https://www.finnhub.io")!)

@@ -55,9 +55,7 @@ class PortfolioViewModel: ObservableObject {
                     self.isLoading = false
                     switch response.result {
                     case .success(let stocks):
-                        debugPrint([Stock].self)
                         self.stocks = stocks
-                        debugPrint(stocks)
                         self.updateStockPrices()
                     case .failure(let error):
                         self.errorMessage = "Failed to load portfolio: \(error.localizedDescription)"

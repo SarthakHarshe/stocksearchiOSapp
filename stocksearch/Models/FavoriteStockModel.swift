@@ -9,7 +9,7 @@ struct FavoriteStock: Identifiable, Codable {
     var id: String { symbol }
     let symbol: String
     let name: String
-    let currentPrice: Double
+    var currentPrice: Double
     var change: Double
     var changePercentage: Double
 }

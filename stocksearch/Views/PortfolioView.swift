@@ -33,17 +33,17 @@ struct PortfolioView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Net Worth")
                     .font(.title2)
-                    .fontWeight(.semibold)
                 Text("$\(viewModel.netWorth, specifier: "%.2f")")
                     .font(.title2)
+                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
             }
             Spacer()
             VStack(alignment: .leading, spacing: 4) {
                 Text("Cash Balance")
                     .font(.title2)
-                    .fontWeight(.semibold)
                 Text("$\(viewModel.cashBalance ?? 0, specifier: "%.2f")")
                     .font(.title2)
+                    .fontWeight(.bold)
             }
         }
     }
@@ -69,7 +69,7 @@ struct PortfolioStockRow: View {
             }
             Spacer()
             VStack(alignment: .trailing) {
-                Text("$\(stock.currentPrice, specifier: "%.2f")").font(.subheadline)
+                Text("$\(stock.marketValue, specifier: "%.2f")").font(.subheadline)
                 priceChangeView
             }
         }
