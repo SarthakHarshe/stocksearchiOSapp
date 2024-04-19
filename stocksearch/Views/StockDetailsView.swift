@@ -51,14 +51,22 @@ struct StockDetailsView: View {
                     .padding(.top)
                     VStack(alignment: .leading, spacing: 20) {
                         
-                        // Placeholder for charts
-                        Text("Charts ka space imagination ke liye")
-                            .padding()
-                            .frame(height: 300)
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(12)
+                        // Highcharts Section
+                        TabView {
+                            HighchartsView(stockService: stockService, htmlName: "ChartView", symbol: symbol)
+                                .tabItem {
+                                    Image(systemName: "chart.xyaxis.line")
+                                    Text("Hourly")
+                                }
+                            
+                            HighchartsView(stockService: stockService, htmlName: "ChartView", symbol: symbol)
+                                .tabItem {
+                                    Image(systemName: "clock")
+                                    Text("Historical")
+                                }
+                        }
+                        .frame(height: 300)
                         
-                        // Add your tab view with charts here
                     }
                 }
                 else {
@@ -76,8 +84,8 @@ struct StockDetailsView: View {
     
     private var favoriteButton: some View {
             Button(action: toggleFavorite) {
-                Image(systemName: stockService.isFavorite ? "star.fill" : "star")
-                    .foregroundColor(.yellow)
+                Image(systemName: stockService.isFavorite ? "plus.circle.fill" : "plus.circle")
+                    .foregroundColor(.black)
             }
         }
     

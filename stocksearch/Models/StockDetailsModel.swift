@@ -177,6 +177,42 @@ class StockDetailsModel: ObservableObject {
                 self.checkIfFavorite()
             }
         }
+    
+    func fetchHourlyChartData(symbol: String, completion: @escaping (Result<[ChartData], Error>) -> Void) {
+        let urlString = "http://localhost:3000/hourly_charts_data?symbol=\(symbol)"
+        AF.request(urlString).responseDecodable(of: HourlyChartDataResponse.self) { response in
+            switch response.result {
+            case .success(let dataResponse):
+                let chartData = dataResponse.results.map { ChartData(x: $0.t, y: $0.c) }
+                completion(.success(chartData))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    // ChartData model to hold data for the chart
+    struct ChartData {
+        let x: Int // timestamp in milliseconds
+        let y: Double // closing price
+    }
+
+    // HourlyChartDataResponse to decode the JSON response
+    struct HourlyChartDataResponse: Decodable {
+        let results: [HourlyChartResult]
+    }
+
+    struct HourlyChartResult: Decodable {
+        let v: Int
+        let vw: Double
+        let o: Double
+        let c: Double
+        let h: Double
+        let l: Double
+        let t: Int // timestamp in milliseconds
+        let n: Int
+    }
+
 }
 
 
