@@ -11,7 +11,7 @@ import Combine
 
 class PortfolioViewModel: ObservableObject {
     @Published var stocks: [Stock] = []
-    @Published var cashBalance: Double?  // Now optional to reflect uninitialized state
+    @Published var cashBalance: Double?
     @Published var netWorth: Double = 0
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
@@ -56,6 +56,7 @@ class PortfolioViewModel: ObservableObject {
                     switch response.result {
                     case .success(let stocks):
                         self.stocks = stocks
+                        print("Fetched portfolio: \(self.stocks)")
                         self.updateStockPrices()
                     case .failure(let error):
                         self.errorMessage = "Failed to load portfolio: \(error.localizedDescription)"

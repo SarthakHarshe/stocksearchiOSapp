@@ -18,10 +18,10 @@ struct FavoritesView: View {
         }
         .onAppear {
             viewModel.fetchFavorites()
-            viewModel.startUpdatingFavorites()
+//            viewModel.startUpdatingFavorites()
         }
         .onDisappear {
-            viewModel.stopUpdatingFavorites()
+//            viewModel.stopUpdatingFavorites()
         }
     }
 

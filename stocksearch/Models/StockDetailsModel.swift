@@ -14,12 +14,20 @@ struct StockInfo: Decodable {
     let change: Double
     let changePercentage: Double
     let name: String?
+    let high: Double
+    let open: Double
+    let low: Double
+    let previousClose: Double
     
     enum CodingKeys: String, CodingKey {
             case currentPrice = "c"
             case change = "d"
             case changePercentage = "dp"
             case name
+            case high = "h"
+            case low = "l"
+            case open = "o"
+            case previousClose = "pc"
         }
 }
 
@@ -27,12 +35,19 @@ struct CompanyProfile: Decodable {
     let name: String
     let exchange: String
     let logo: String
+    let ipo: String
+    let industry: String
+    let webpage: String
 
     
     enum CodingKeys: String, CodingKey {
             case name
             case exchange
             case logo
+            case ipo
+            case industry = "finnhubIndustry"
+            case webpage = "weburl"
+            
         }
 }
 
@@ -68,6 +83,59 @@ struct WatchlistParameters: Encodable {
         }
 }
 
+struct InsiderSentiment: Decodable {
+    let data: [SentimentData]
+    let symbol: String
+
+    struct SentimentData: Decodable {
+        let symbol: String
+        let year: Int
+        let month: Int
+        let change: Double
+        let mspr: Double
+    }
+}
+
+struct RecommendationTrend: Decodable {
+    let period: String
+    let buy: Int
+    let hold: Int
+    let sell: Int
+    let strongBuy: Int
+    let strongSell: Int
+}
+
+struct HistoricalEPS: Decodable {
+    let actual: Double
+    let estimate: Double
+    let period: String
+    let surprise: Double
+}
+
+struct NewsArticle: Identifiable, Decodable {
+    let id: Int
+    let category: String
+    let datetime: TimeInterval
+    let headline: String
+    let image: String
+    let related: String
+    let source: String
+    let summary: String
+    let url: String
+}
+
+
+extension Array where Element == InsiderSentiment.SentimentData {
+    var totalMSPR: Double { reduce(0) { $0 + $1.mspr } }
+    var totalChange: Double { reduce(0) { $0 + $1.change } }
+    var positiveMSPR: Double { filter { $0.mspr > 0 }.reduce(0) { $0 + $1.mspr } }
+    var negativeMSPR: Double { filter { $0.mspr < 0 }.reduce(0) { $0 + $1.mspr } }
+    var positiveChange: Double { filter { $0.change > 0 }.reduce(0) { $0 + $1.change } }
+    var negativeChange: Double { filter { $0.change < 0 }.reduce(0) { $0 + $1.change } }
+}
+
+
+
 
 class StockDetailsModel: ObservableObject {
     @Published var stockInfo: StockInfo?
@@ -75,6 +143,11 @@ class StockDetailsModel: ObservableObject {
     @Published var isLoading = true
     @Published var isFavorite = false
     private var symbol: String
+    @Published var companyPeers: [String] = []
+    @Published var insiderSentiments: InsiderSentiment?
+    @Published var latestNews: [NewsArticle] = []
+
+    
     
     private let quoteURL = "http://localhost:3000/stock_quote"
     private let profileURL = "http://localhost:3000/company_profile"
@@ -85,6 +158,7 @@ class StockDetailsModel: ObservableObject {
             self.symbol = symbol
             checkIfFavorite()
             fetchStockDetails(symbol: symbol)
+            fetchLatestNews()
         }
     
     
@@ -190,14 +264,96 @@ class StockDetailsModel: ObservableObject {
             }
         }
     }
-
-    // ChartData model to hold data for the chart
-    struct ChartData {
-        let x: Int // timestamp in milliseconds
-        let y: Double // closing price
+    
+    func fetchHistoricalChartData(symbol: String, completion: @escaping (Result<[HistoricalChartData], Error>) -> Void) {
+        let urlString = "http://localhost:3000/charts_data?symbol=\(symbol)"
+        AF.request(urlString).responseDecodable(of: HistoricalChartDataResponse.self) { response in
+            switch response.result {
+            case .success(let dataResponse):
+                let chartData = dataResponse.results.map { HistoricalChartData(x: $0.t, open: $0.o, high: $0.h, low: $0.l, close: $0.c, volume: $0.v) }
+                completion(.success(chartData))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    func fetchCompanyPeers() {
+            let peersURL = "http://localhost:3000/company_peers?symbol=\(symbol)"
+            AF.request(peersURL).responseDecodable(of: [String].self) { response in
+                DispatchQueue.main.async {
+                    switch response.result {
+                    case .success(let peers):
+                        self.companyPeers = peers
+                    case .failure(let error):
+                        print("Error fetching company peers: \(error)")
+                    }
+                }
+            }
+        }
+    
+    func fetchInsiderSentiments() {
+        let sentimentURL = "http://localhost:3000/insider_sentiment?symbol=\(symbol)"
+        AF.request(sentimentURL).responseDecodable(of: InsiderSentiment.self) { response in
+            DispatchQueue.main.async {
+                switch response.result {
+                case .success(let sentiments):
+                    self.insiderSentiments = sentiments
+                case .failure(let error):
+                    print("Error fetching insider sentiments: \(error)")
+                }
+            }
+        }
+    }
+    
+    func fetchRecommendationTrends(symbol: String, completion: @escaping (Result<[RecommendationTrend], Error>) -> Void) {
+        AF.request("http://localhost:3000/recommendation_trends?symbol=\(symbol)").responseDecodable(of: [RecommendationTrend].self) { response in
+            switch response.result {
+            case .success(let trends):
+                completion(.success(trends))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    func fetchHistoricalEPS(symbol: String, completion: @escaping (Result<[HistoricalEPS], Error>) -> Void) {
+        AF.request("http://localhost:3000/company_earnings?symbol=\(symbol)").responseDecodable(of: [HistoricalEPS].self) { response in
+            switch response.result {
+            case .success(let earnings):
+                completion(.success(earnings))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
-    // HourlyChartDataResponse to decode the JSON response
+    func fetchLatestNews() {
+        let newsURL = "http://localhost:3000/latest_news?symbol=\(symbol)"
+        AF.request(newsURL).responseDecodable(of: [NewsArticle].self) { response in
+            DispatchQueue.main.async {
+                switch response.result {
+                case .success(let articles):
+                    // Filter out articles without images and limit the results to 20
+                    let filteredArticles = articles.filter { !$0.image.isEmpty }.prefix(20)
+                    self.latestNews = Array(filteredArticles)
+                case .failure(let error):
+                    print("Error fetching latest news: \(error)")
+                }
+            }
+        }
+    }
+
+
+    
+    
+    
+
+    struct ChartData {
+        let x: Int
+        let y: Double
+    }
+    
     struct HourlyChartDataResponse: Decodable {
         let results: [HourlyChartResult]
     }
@@ -209,9 +365,33 @@ class StockDetailsModel: ObservableObject {
         let c: Double
         let h: Double
         let l: Double
-        let t: Int // timestamp in milliseconds
+        let t: Int
         let n: Int
     }
+    
+    //SMA Chart Data Structures
+    struct HistoricalChartData {
+        let x: Int // This will represent the timestamp
+        let open: Double
+        let high: Double
+        let low: Double
+        let close: Double
+        let volume: Int
+    }
+
+    struct HistoricalChartDataResponse: Decodable {
+        let results: [HistoricalChartResult]
+    }
+
+    struct HistoricalChartResult: Decodable {
+        let t: Int        // Timestamp
+        let o: Double     // Open price
+        let h: Double     // High price
+        let l: Double     // Low price
+        let c: Double     // Close price
+        let v: Int        // Volume
+    }
+
 
 }
 

@@ -19,7 +19,7 @@ class FavoritesViewModel: ObservableObject {
     init() {
         fetchFavorites()
         updateFavoriteStockPrices()
-        startUpdatingFavorites()
+//        startUpdatingFavorites()
     }
 
     func fetchFavorites() {
@@ -61,17 +61,17 @@ class FavoritesViewModel: ObservableObject {
 
 
     
-    func startUpdatingFavorites() {
-           // Start a timer that triggers every 15 seconds
-           timer = Timer.publish(every: 15, on: .main, in: .common).autoconnect()
-               .sink { [weak self] _ in
-                   self?.updateFavoriteStockPrices()
-               }
-       }
-    
-    func stopUpdatingFavorites() {
-            timer?.cancel()
-        }
+//    func startUpdatingFavorites() {
+//           // Start a timer that triggers every 15 seconds
+//           timer = Timer.publish(every: 15, on: .main, in: .common).autoconnect()
+//               .sink { [weak self] _ in
+//                   self?.updateFavoriteStockPrices()
+//               }
+//       }
+//    
+//    func stopUpdatingFavorites() {
+//            timer?.cancel()
+//        }
     
     func deleteFavorite(at offsets: IndexSet) {
         offsets.forEach { index in

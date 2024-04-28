@@ -2,48 +2,97 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://code.highcharts.com/highcharts.js"></script>
-  <script src="https://code.highcharts.com/modules/series-label.js"></script>
-  <script src="https://code.highcharts.com/modules/exporting.js"></script>
-  <script src="https://code.highcharts.com/modules/export-data.js"></script>
-  <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <!-- Load Highstock, which also includes Highcharts -->
+        <script src="https://code.highcharts.com/stock/highstock.js"></script>
+
+        <!-- Load indicators and additional features -->
+        <script src="https://code.highcharts.com/stock/modules/drag-panes.js"></script>
+        <script src="https://code.highcharts.com/stock/indicators/indicators-all.js"></script>
+        <script src="https://code.highcharts.com/stock/indicators/volume-by-price.js"></script>
+        
+        
+        <!-- Load modules needed for exporting -->
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script src="https://code.highcharts.com/modules/export-data.js"></script>
+        <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
   <style>
-     body, html {
-       margin: 0;
-       padding: 0;
-       height: 100%;
-       width: 100%;
+     #hourly-chart-container {
+            margin: auto;
+            height: 900px;
      }
-     #hourly-chart-container, #historical-chart-container {
-       height: 100%;
-       width: 100%;
-     }
+      
+      #historical-chart-container {
+          height: 400px;
+      }
+      
+        #recommendation-trends-container {
+            margin: auto;
+        }
+      
+        #historical-eps-container {
+            margin: auto;
+        }
    </style>
 </head>
 <body>
   <div id="hourly-chart-container"></div>
   <div id="historical-chart-container"></div>
+  <div id="recommendation-trends-container"></div>
+  <div id="historical-eps-container"></div>
 
  
  <script>
      document.addEventListener('DOMContentLoaded', function() {
          window.webkit.messageHandlers.logHandler.postMessage("HTML loaded and JavaScript ready.");
      });
+     
    function updateHourlyChart(options) {
        try {
-              console.log("Attempting to update chart with options:", options);
               Highcharts.chart('hourly-chart-container', options);
-              console.log("Chart should now be visible.");
           } catch (e) {
               console.error("Error updating chart:", e.toString());
                      window.webkit.messageHandlers.logHandler.postMessage("Error in chart: " + e.toString());
           }
    }
 
-   function updateHistoricalChart(options) {
-       Highcharts.chart('historical-chart-container', options);
-   }
+     function updateHistoricalChart(options) {
+         console.log("Received options for historical chart:", JSON.stringify(options));
+         try {
+             console.log("Attempting to create historical chart...");
+             Highcharts.stockChart('historical-chart-container', options);
+             console.log("Historical chart should now be visible.");
+         } catch (e) {
+             console.error("Error updating historical chart:", e.toString());
+             window.webkit.messageHandlers.logHandler.postMessage("Error in historical chart: " + (e.message || JSON.stringify(e)));
+         }
+     }
      
+     function updateRecommendationTrendsChart(options) {
+         console.log("Received options for recommendation trends chart:", JSON.stringify(options));
+         try {
+             console.log("Attempting to create recommendation trends chart...");
+             Highcharts.chart('recommendation-trends-container', options);
+             console.log("Recommendation trends chart should now be visible.");
+         } catch (e) {
+             console.error("Error updating recommendation trends chart:", e.toString());
+             window.webkit.messageHandlers.logHandler.postMessage("Error in recommendation trends chart: " + (e.message || JSON.stringify(e)));
+         }
+     }
+     
+     function updateHistoricalEPSChart(options) {
+         console.log("Received options for historical EPS chart:", JSON.stringify(options));
+         try {
+             console.log("Attempting to create historical EPS chart...");
+             Highcharts.chart('historical-eps-container', options);
+             console.log("Historical EPS chart should now be visible.");
+         } catch (e) {
+             console.error("Error updating historical EPS chart:", e.toString());
+             window.webkit.messageHandlers.logHandler.postMessage("Error in historical EPS chart: " + (e.message || JSON.stringify(e)));
+         }
+     }
+
+
  //For console.log to be seen in xcode console we added Javascript code to send log messages to the native side
  var oldLog = console.log;
     console.log = function (message) {
