@@ -16,6 +16,7 @@ class PortfolioViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     var timer: AnyCancellable?
+    
 
     // URLs for the backend endpoints
     private let portfolioURL = "http://localhost:3000/portfolio"
@@ -113,6 +114,67 @@ class PortfolioViewModel: ObservableObject {
             timer?.cancel()
         }
     
+    func updateData() {
+            fetchUserData()
+            fetchPortfolio()
+        }
+    
+    func buyStock(symbol: String, quantity: Int, price: Double, completion: @escaping (Result<String, Error>) -> Void) {
+        let buyURL = "http://localhost:3000/portfolio/buy"
+        let request = BuyStockRequest(symbol: symbol, quantity: quantity, price: price)
+
+        AF.request(buyURL, method: .post, parameters: request, encoder: JSONParameterEncoder.default)
+            .validate()
+            .responseDecodable(of: BuySellResponse.self) { response in
+                DispatchQueue.main.async {
+                    switch response.result {
+                    case .success(_):
+                        completion(.success("Bought \(quantity) shares of \(symbol)."))
+                        self.updateData()
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
+                }
+            }
+    }
+    
+    func sellStock(symbol: String, quantity: Int, price: Double, completion: @escaping (Result<String, Error>) -> Void) {
+        let sellURL = "http://localhost:3000/portfolio/sell"
+        let request = SellStockRequest(symbol: symbol, quantity: quantity, price: price)
+
+        AF.request(sellURL, method: .post, parameters: request, encoder: JSONParameterEncoder.default)
+            .validate()
+            .responseDecodable(of: BuySellResponse.self) { response in
+                DispatchQueue.main.async {
+                    switch response.result {
+                    case .success(_):
+                        completion(.success("Sold \(quantity) shares of \(symbol)."))
+                        self.updateData()
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
+                }
+            }
+    }
+
+    
+    func updateWalletBalance(newBalance: Double, completion: @escaping (Result<String, Error>) -> Void) {
+        let updateWalletURL = "http://localhost:3000/userdata/update-wallet"
+        let request = UpdateWalletRequest(newBalance: newBalance)
+
+        AF.request(updateWalletURL, method: .post, parameters: request, encoder: JSONParameterEncoder.default)
+            .validate()
+            .responseDecodable(of: WalletUpdateResponse.self) { response in
+                switch response.result {
+                case .success(let walletResponse):
+                    self.cashBalance = newBalance
+                    completion(.success(walletResponse.message))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+    }
+    
     func deleteStock(at offsets: IndexSet) {
         offsets.forEach { index in
             let stock = stocks[index]
@@ -144,5 +206,30 @@ struct StockQuote: Codable {
     enum CodingKeys: String, CodingKey {
         case currentPrice = "c"  // Key in JSON that holds the current price
     }
+}
+
+struct BuySellResponse: Codable {
+    let message: String
+    let walletBalance: Double?
+}
+
+struct WalletUpdateResponse: Codable {
+    let message: String
+}
+
+struct BuyStockRequest: Encodable {
+    let symbol: String
+    let quantity: Int
+    let price: Double
+}
+
+struct SellStockRequest: Encodable {
+    let symbol: String
+    let quantity: Int
+    let price: Double
+}
+
+struct UpdateWalletRequest: Encodable {
+    let newBalance: Double
 }
 

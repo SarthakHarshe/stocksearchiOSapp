@@ -35,7 +35,11 @@ struct FavoritesView: View {
         ForEach(viewModel.favorites) { favorite in
             FavoriteStockRow(favorite: favorite)
         }
-        .onDelete(perform: viewModel.deleteFavorite)
+//        .onDelete { offsets in
+//                    viewModel.deleteFavorite(at: offsets) { success, message in
+//                        GlobalToastManager.shared.show(message: message)
+//                    }
+//                }
         .onMove(perform: viewModel.moveFavorite)
     }
 }
@@ -56,7 +60,7 @@ struct FavoriteStockRow: View {
                 priceChangeView
             }
         }
-        .background(Color.white)  // Consistent background as portfolio rows
+        .background(Color.white) 
     }
 
     private var priceChangeView: some View {

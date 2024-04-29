@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Load Highstock, which also includes Highcharts -->
         <script src="https://code.highcharts.com/stock/highstock.js"></script>
 
@@ -17,22 +18,11 @@
         <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
   <style>
-     #hourly-chart-container {
-            margin: auto;
-            height: 900px;
-     }
-      
-      #historical-chart-container {
-          height: 400px;
-      }
-      
-        #recommendation-trends-container {
-            margin: auto;
-        }
-      
-        #historical-eps-container {
-            margin: auto;
-        }
+      #hourly-chart-container, #historical-chart-container,
+          #recommendation-trends-container, #historical-eps-container {
+              height: 100%
+              width: 100%
+          }
    </style>
 </head>
 <body>

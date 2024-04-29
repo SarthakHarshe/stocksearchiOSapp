@@ -8,6 +8,7 @@
 import Foundation
 import Alamofire
 import Combine
+import SwiftUI
 
 struct StockInfo: Decodable {
     let currentPrice: Double
@@ -115,7 +116,7 @@ struct HistoricalEPS: Decodable {
 struct NewsArticle: Identifiable, Decodable {
     let id: Int
     let category: String
-    let datetime: TimeInterval
+    let datetime: Int64
     let headline: String
     let image: String
     let related: String
@@ -162,12 +163,15 @@ class StockDetailsModel: ObservableObject {
         }
     
     
-    func addToFavorites() {
-        guard let stock = stockInfo, let profile = companyProfile else { return }
+    func addToFavorites(completion: @escaping (Bool, String) -> Void) {
+        guard let stock = stockInfo, let profile = companyProfile else {
+            completion(false, "Incomplete data for adding to favorites.")
+            return
+        }
 
         let currentTime = Int64(Date().timeIntervalSince1970 * 1000)
         let params = WatchlistParameters(
-            symbol: self.symbol,
+            symbol: symbol,
             name: profile.name,
             exchange: profile.exchange,
             logo: profile.logo,
@@ -178,28 +182,27 @@ class StockDetailsModel: ObservableObject {
         )
 
         AF.request("\(watchlistURL)", method: .post, parameters: params, encoder: JSONParameterEncoder.default).response { response in
-            switch response.result {
-            case .success(_):
-                print("Added to favorites successfully")
+            if response.error == nil {
                 self.isFavorite = true
-            case .failure(let error):
-                print("Failed to add to favorites: \(error.localizedDescription)")
+                completion(true, "Added to favorites successfully")
+            } else {
+                completion(false, "Failed to add to favorites")
             }
         }
     }
 
 
-    func removeFromFavorites() {
-            AF.request("\(watchlistURL)/\(symbol)", method: .delete).response { response in
-                switch response.result {
-                case .success(_):
-                    print("Removed from favorites")
-                    self.isFavorite = false
-                case .failure(let error):
-                    print("Failed to remove from favorites: \(error.localizedDescription)")
-                }
+    func removeFromFavorites(completion: @escaping (Bool, String) -> Void) {
+        AF.request("\(watchlistURL)/\(symbol)", method: .delete).response { response in
+            if response.error == nil {
+                self.isFavorite = false
+                completion(true, "Removed from favorites successfully")
+            } else {
+                completion(false, "Failed to remove from favorites")
             }
         }
+    }
+
     
     func checkIfFavorite() {
         AF.request(watchlistURL).responseDecodable(of: [WatchlistStock].self) { response in
@@ -257,7 +260,7 @@ class StockDetailsModel: ObservableObject {
         AF.request(urlString).responseDecodable(of: HourlyChartDataResponse.self) { response in
             switch response.result {
             case .success(let dataResponse):
-                let chartData = dataResponse.results.map { ChartData(x: $0.t, y: $0.c) }
+                let chartData = dataResponse.results.map { ChartData(t: $0.t, c: $0.c) }
                 completion(.success(chartData))
             case .failure(let error):
                 completion(.failure(error))
@@ -350,8 +353,8 @@ class StockDetailsModel: ObservableObject {
     
 
     struct ChartData {
-        let x: Int
-        let y: Double
+        let t: Int
+        let c: Double
     }
     
     struct HourlyChartDataResponse: Decodable {
@@ -371,7 +374,7 @@ class StockDetailsModel: ObservableObject {
     
     //SMA Chart Data Structures
     struct HistoricalChartData {
-        let x: Int // This will represent the timestamp
+        let x: Int
         let open: Double
         let high: Double
         let low: Double

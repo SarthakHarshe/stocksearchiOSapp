@@ -73,7 +73,7 @@ struct PortfolioStockRow: View {
                 priceChangeView
             }
         }
-        .background(Color.white)  // Keeping the row background consistent
+        .background(Color.white)  
     }
 
     private var priceChangeView: some View {

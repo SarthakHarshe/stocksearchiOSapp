@@ -8,6 +8,7 @@
 import Foundation
 import Alamofire
 import Combine
+import SwiftUI
 
 
 class FavoritesViewModel: ObservableObject {
@@ -73,22 +74,23 @@ class FavoritesViewModel: ObservableObject {
 //            timer?.cancel()
 //        }
     
-    func deleteFavorite(at offsets: IndexSet) {
-        offsets.forEach { index in
-            let favorite = favorites[index]
-            AF.request("http://localhost:3000/watchlist/\(favorite.symbol)", method: .delete)
-                .validate()
-                .response { response in
-                    DispatchQueue.main.async {
-                        if response.error == nil {
-                            self.favorites.remove(at: index)
-                        } else {
-                            // Handle the error properly
+    func deleteFavorite(at offsets: IndexSet, completion: @escaping (Bool, String) -> Void) {
+            for index in offsets {
+                let favorite = favorites[index]
+                AF.request("http://localhost:3000/watchlist/\(favorite.symbol)", method: .delete)
+                    .validate()
+                    .response { response in
+                        DispatchQueue.main.async {
+                            if response.error == nil {
+                                self.favorites.remove(at: index)
+                                completion(true, "\(favorite.symbol) removed from favorites")
+                            } else {
+                                completion(false, "Failed to remove \(favorite.symbol) from favorites")
+                            }
                         }
                     }
-                }
+            }
         }
-    }
     
     func moveFavorite(from source: IndexSet, to destination: Int) {
         favorites.move(fromOffsets: source, toOffset: destination)

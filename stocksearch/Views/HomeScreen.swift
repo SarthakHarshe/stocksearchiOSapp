@@ -13,7 +13,7 @@ struct HomeScreen: View {
     @StateObject var searchViewModel = SearchViewModel()
     @StateObject var favoritesViewModel = FavoritesViewModel()
     @State private var isSearching = false
-
+    
     var body: some View {
         NavigationView {
             List {
@@ -36,7 +36,6 @@ struct HomeScreen: View {
                     }
                     
                     Section(header: Text("Portfolio")) {
-                        // Accessing the header function from the PortfolioView.swift file
                         PortfolioView(viewModel: portfolioViewModel).headerView
                         ForEach(portfolioViewModel.stocks) { stock in
                             NavigationLink(destination: StockDetailsView(symbol: stock.symbol)) {
@@ -44,6 +43,9 @@ struct HomeScreen: View {
                             }
                         }
                         .onMove(perform: portfolioViewModel.moveStock)
+                        .onAppear {
+                            portfolioViewModel.fetchPortfolio()
+                        }
                     }
                     
                     Section(header: Text("Favorites")) {
@@ -52,7 +54,11 @@ struct HomeScreen: View {
                                 FavoriteStockRow(favorite: favorite)
                             }
                         }
-                        .onDelete(perform: favoritesViewModel.deleteFavorite)
+                        .onDelete { offsets in
+                            favoritesViewModel.deleteFavorite(at: offsets) { success, message in
+                                    GlobalToastManager.shared.show(message: message)
+                            }
+                        }
                         .onMove(perform: favoritesViewModel.moveFavorite)
                     }
                     .onAppear {
@@ -66,19 +72,20 @@ struct HomeScreen: View {
             }
             .navigationTitle("Stocks")
             .searchable(text: $searchViewModel.searchText, placement: .navigationBarDrawer(displayMode: .always))
-                        .onChange(of: searchViewModel.searchText, initial: true) { _, newValue in
-                            isSearching = !newValue.isEmpty
-                            if newValue.isEmpty {
-                                searchViewModel.searchResults.removeAll()
-                            }
-                        }
+            .onChange(of: searchViewModel.searchText, initial: true) { _, newValue in
+                isSearching = !newValue.isEmpty
+                if newValue.isEmpty {
+                    searchViewModel.searchResults.removeAll()
+                }
+            }
             .toolbar {
                 EditButton()
             }
+            .modifier(ToastModifier())
         }
     }
-       
-
+    
+    
     private func poweredByLink() -> some View {
         Link("Powered by Finnhub.io", destination: URL(string: "https://www.finnhub.io")!)
             .frame(maxWidth: .infinity, alignment: .center)

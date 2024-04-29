@@ -16,7 +16,7 @@ enum ChartType {
 }
 
 struct HighchartsView: UIViewRepresentable {
-    var stockService: StockDetailsModel 
+    @ObservedObject var stockService: StockDetailsModel
     let htmlName: String
     let symbol: String
     let chartType: ChartType
@@ -81,18 +81,18 @@ struct HighchartsView: UIViewRepresentable {
         stockService.fetchHourlyChartData(symbol: symbol) { result in
             switch result {
             case .success(let chartData):
-                let seriesData = chartData.map { "Date.UTC(\(convertToUTCDate(milliseconds: $0.x)), \($0.y))" }
-                let jsSeriesData = "[\(seriesData.joined(separator: ", "))]" // Correctly join array elements
+                let seriesData = chartData.map { "[\($0.t), \($0.c)]" }.joined(separator: ", ")
+                let formattedSeriesData = "[\(seriesData)]"
+                let lineColor = (self.stockService.stockInfo?.change ?? 0) >= 0 ? "green" : "red"
 
                 let jsChartOptions = """
                     {
                         chart: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.05)',
                             type: 'line',
                             style: {
                                 fontFamily: 'Arial',
                             },
-                            height: '100%'
+                            height: '85%'
                         },
                         title: {
                             text: 'Hourly Price Variation',
@@ -110,18 +110,27 @@ struct HighchartsView: UIViewRepresentable {
                               format: '{value:%H:%M}',
                             },
                              tickInterval: 10800 * 1000,
+                             tickPositioner: function() {
+                                    var positions = [],
+                                        interval = Math.floor((this.dataMax - this.dataMin) / 4); // Adjust the denominator to change number of ticks
+                                    for (let i = this.dataMin; i <= this.dataMax; i += interval) {
+                                        positions.push(i);
+                                    }
+                                    return positions;
+                                }
                         },
                         yAxis: {
                             title: {
                                 text: '',
                             },
                             opposite: true,
+                            tickAmount: 4,
                         },
                         series: [{
                             name: 'Price',
-                            data: \(jsSeriesData),
+                            data: \(formattedSeriesData),
                             type: 'line',
-                            color: 'red',
+                            color: '\(lineColor)',
                             marker: {
                                 enabled: false,
                             },
@@ -145,6 +154,7 @@ struct HighchartsView: UIViewRepresentable {
                         },
                     }
                     """
+                print(jsChartOptions)
                 let jsCode = "updateHourlyChart(\(jsChartOptions))"
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     webView.evaluateJavaScript(jsCode) { (result, error) in
@@ -171,6 +181,12 @@ struct HighchartsView: UIViewRepresentable {
 
                 let jsChartData = """
                 {
+                    chart: {
+                                height: '85%'
+                    },
+                    legend: {
+                        enabled: false,
+                      },
                     rangeSelector: {
                                 selected: 2
                     },
@@ -180,44 +196,61 @@ struct HighchartsView: UIViewRepresentable {
                     subtitle: {
                         text: 'With SMA and Volume by Price technical indicators'
                     },
-                    yAxis: [{
-                               startOnTick: false,
-                               endOnTick: false,
-                               labels: {
-                                   align: 'right',
-                                   x: -3
-                               },
-                               title: {
-                                   text: 'OHLC'
-                               },
-                               height: '60%',
-                               lineWidth: 2,
-                               resize: {
-                                   enabled: true
-                               }
-                           }, {
-                               labels: {
-                                   align: 'right',
-                                   x: -3
-                               },
-                               title: {
-                                   text: 'Volume'
-                               },
-                               top: '65%',
-                               height: '35%',
-                               offset: 0,
-                               lineWidth: 2
-                           }],
+                    yAxis: [
+                            {
+                              opposite: true,
+                              startOnTick: false,
+                              endOnTick: false,
+                              labels: {
+                                align: 'right',
+                                x: -3,
+                              },
+                              title: {
+                                text: 'OHLC',
+                              },
+                              height: '60%',
+                              lineWidth: 2,
+                              resize: {
+                                enabled: true,
+                              },
+                            },
+                            {
+                              opposite: true,
+                              labels: {
+                                align: 'right',
+                                x: -3,
+                              },
+                              title: {
+                                text: 'Volume',
+                              },
+                              top: '65%',
+                              height: '35%',
+                              offset: 0,
+                              lineWidth: 2,
+                            },
+                          ],
+                        xAxis: {
+                        type: 'datetime',
+                        dateTimeLabelFormats: {
+                          hour: '%M:%Y',
+                        },
+                      },
                         tooltip: {
                                 split: true
                             },
                         plotOptions: {
-                            series: {
-                                dataGrouping: {
-                                    units: [['week', [1]], ['month', [1, 2, 3, 6]]]
-                                }
-                            }
-                        },
+                                series: {
+                                  dataGrouping: {
+                                    units: [
+                                      [
+                                        'week',
+                                        [2],
+                                      ],
+                                      ['month', [1, 2, 3, 4, 6]],
+                                    ],
+                                  },
+                                },
+                              },
                     series: [{
                         type: 'candlestick',
                         name: '\(self.symbol)',
@@ -310,13 +343,15 @@ struct HighchartsView: UIViewRepresentable {
                 {
                     chart: {
                         type: 'column',
-                        backgroundColor: 'rgba(0, 0, 0, 0.05)'
+                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                        height: '100%'
                     },
                     title: {
                         text: 'Recommendation Trends'
                     },
                     xAxis: {
-                        categories: [\(categories)]
+                        categories: [\(categories)],
+                        tickAmount: 4
                     },
                     yAxis: {
                         min: 0,
@@ -329,7 +364,8 @@ struct HighchartsView: UIViewRepresentable {
                                 fontWeight: 'bold',
                                 color: 'gray'
                             }
-                        }
+                        },
+                        tickAmount: 4
                     },
                     legend: {
                         enabled: true
@@ -376,18 +412,21 @@ struct HighchartsView: UIViewRepresentable {
                 {
                     chart: {
                         type: 'spline',
-                        backgroundColor: 'rgba(0, 0, 0, 0.05)'
+                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                        height: '100%'
                     },
                     title: {
                         text: 'Historical EPS Surprises'
                     },
                     xAxis: {
-                        categories: [\(categories)]
+                        categories: [\(categories)],
+                        tickAmount: 4
                     },
                     yAxis: {
                         title: {
                             text: 'Quarterly EPS'
-                        }
+                        },
+                                tickAmount: 4
                     },
                     tooltip: {
                         crosshairs: true,
@@ -431,10 +470,6 @@ struct HighchartsView: UIViewRepresentable {
 }
 
 extension Array where Element == String {
-    /// Converts the array of strings to a JavaScript array string where each element is quoted.
-    ///
-    /// - Parameter separator: A string to insert between each of the elements in this sequence. The default separator is a comma `,`.
-    /// - Returns: A JavaScript array string of quoted strings.
     func quotedJoined(separator: String = ",") -> String {
         return self.map { "\"\($0)\"" }.joined(separator: separator)
     }

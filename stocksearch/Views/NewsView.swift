@@ -11,6 +11,7 @@ import Kingfisher
 struct NewsView: View {
     let article: NewsArticle
     var isFirstArticle: Bool = false
+    let currentTime = Int64(Date().timeIntervalSince1970)
     
     @State private var showDetails = false
     
@@ -28,7 +29,7 @@ struct NewsView: View {
                 }
                 HStack {
                     Text(article.source).font(.subheadline).foregroundColor(.secondary)
-                    Text("\(article.datetime.timeAgo())").font(.footnote)
+                    Text("\((currentTime - article.datetime)/3600) hr, \(((currentTime - article.datetime)%3600)/60) min").font(.footnote).foregroundColor(.secondary)
                     Spacer()
                 }
                 Text(article.headline).font(.headline)
@@ -38,7 +39,7 @@ struct NewsView: View {
                     VStack(alignment: .leading) {
                         HStack {
                             Text(article.source).font(.headline).foregroundColor(.secondary)
-                            Text("\(article.datetime.timeAgo())").font(.footnote).foregroundColor(.secondary)
+                            Text("\((currentTime - article.datetime)/3600) hr, \(((currentTime - article.datetime)%3600)/60) min").font(.footnote).foregroundColor(.secondary)
                             Spacer()
                         }
                         
@@ -81,6 +82,15 @@ struct NewsDetailView: View {
                     Link("Read Full Article", destination: URL(string: article.url)!)
                         .font(.headline)
                         .foregroundColor(.blue)
+                    HStack {
+                        Link(destination: URL(string:"https://twitter.com/intent/tweet?text=\(article.headline )&url=\(article.url)")!){
+                                            Image("Twitter").resizable().imageScale(.small).frame(width: 35,height: 35)
+                        }
+                        Link(destination:URL(string: "https://www.facebook.com/sharer/sharer.php?u=\(self.article.url)&amp;src=sdkpreparse")!){
+                            Image("Facebook").resizable().imageScale(.small).frame(width: 35,height: 35)
+                            }
+                    }
+                                    
                 }
                 .padding()
             }
@@ -109,7 +119,7 @@ struct NewsView_Previews: PreviewProvider {
         let article = NewsArticle(
             id: 1,
             category: "business",
-            datetime: TimeInterval(1617694838),
+            datetime: 1617694838,
             headline: "Breaking News!",
             image: "https://via.placeholder.com/100",
             related: "AAPL",

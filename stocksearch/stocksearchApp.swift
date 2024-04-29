@@ -12,6 +12,8 @@ struct stocksearchApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(GlobalToastManager.shared)
+                
         }
     }
 }
