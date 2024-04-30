@@ -13,9 +13,10 @@ class PortfolioViewModel: ObservableObject {
     @Published var stocks: [Stock] = []
     @Published var cashBalance: Double?
     @Published var netWorth: Double = 0
-    @Published var isLoading: Bool = false
+    @Published var isLoading = false
     @Published var errorMessage: String?
     var timer: AnyCancellable?
+    
     
 
     // URLs for the backend endpoints
@@ -53,11 +54,10 @@ class PortfolioViewModel: ObservableObject {
             .validate()
             .responseDecodable(of: [Stock].self) { response in
                 DispatchQueue.main.async {
-                    self.isLoading = false
                     switch response.result {
                     case .success(let stocks):
                         self.stocks = stocks
-                        print("Fetched portfolio: \(self.stocks)")
+                        self.isLoading = false
                         self.updateStockPrices()
                     case .failure(let error):
                         self.errorMessage = "Failed to load portfolio: \(error.localizedDescription)"

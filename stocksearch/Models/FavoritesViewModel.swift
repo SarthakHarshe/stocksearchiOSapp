@@ -16,6 +16,7 @@ class FavoritesViewModel: ObservableObject {
     private let favoritesURL = "http://localhost:3000/watchlist"
     private let quoteURL = "http://localhost:3000/stock_quote"
     var timer: AnyCancellable?
+    @Published var isLoading = false
     
     init() {
         fetchFavorites()
@@ -24,10 +25,12 @@ class FavoritesViewModel: ObservableObject {
     }
 
     func fetchFavorites() {
+        isLoading = true
         AF.request(favoritesURL, method: .get)
             .validate()
             .responseDecodable(of: [FavoriteStock].self) { response in
                 DispatchQueue.main.async {
+                    self.isLoading = false
                     switch response.result {
                     case .success(let fetchedFavorites):
                         self.favorites = fetchedFavorites

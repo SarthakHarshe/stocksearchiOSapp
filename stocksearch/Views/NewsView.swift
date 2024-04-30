@@ -33,6 +33,7 @@ struct NewsView: View {
                     Spacer()
                 }
                 Text(article.headline).font(.headline)
+                Divider()
             } else {
                 // Rest of the articles layout
                 HStack {
@@ -77,11 +78,19 @@ struct NewsDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     Text(article.source).font(.headline)
+                    Text(article.datetime.formattedDate()).foregroundColor(.secondary)
+                    Divider()
                     Text(article.headline).font(.title)
                     Text(article.summary).font(.body)
-                    Link("Read Full Article", destination: URL(string: article.url)!)
-                        .font(.headline)
-                        .foregroundColor(.blue)
+                    HStack {
+                                            Text("For more details click ")
+                                            Button("here") {
+                                                if let url = URL(string: article.url), UIApplication.shared.canOpenURL(url) {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            }
+                                            .foregroundColor(.blue)
+                                        }
                     HStack {
                         Link(destination: URL(string:"https://twitter.com/intent/tweet?text=\(article.headline )&url=\(article.url)")!){
                                             Image("Twitter").resizable().imageScale(.small).frame(width: 35,height: 35)
@@ -99,11 +108,20 @@ struct NewsDetailView: View {
             }) {
                 Image(systemName: "xmark")
             })
-            .navigationTitle("News Details")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
+
+extension Int64 {
+    func formattedDate() -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(self))
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM dd, yyyy"  // Example: January 01, 2022
+        return formatter.string(from: date)
+    }
+}
+
 
 // Dummy implementation for the preview
 extension TimeInterval {

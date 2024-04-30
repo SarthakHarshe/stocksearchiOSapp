@@ -147,6 +147,13 @@ class StockDetailsModel: ObservableObject {
     @Published var companyPeers: [String] = []
     @Published var insiderSentiments: InsiderSentiment?
     @Published var latestNews: [NewsArticle] = []
+    @Published var hourlyChartData: [ChartData] = []  
+    @Published var historicalChartData: [HistoricalChartData] = []
+    @Published var recommendationTrends: [RecommendationTrend] = []
+    @Published var historicalEPS: [HistoricalEPS] = []
+    @Published var isChartReady = false
+
+
 
     
     
@@ -158,9 +165,96 @@ class StockDetailsModel: ObservableObject {
     init(symbol: String) {
             self.symbol = symbol
             checkIfFavorite()
-            fetchStockDetails(symbol: symbol)
-            fetchLatestNews()
+            fetchAllData() {
+                    print("Initial data fetching is complete.")
+                }
         }
+    
+    func fetchAllData(completion: @escaping () -> Void) {
+           isLoading = true
+           let group = DispatchGroup()
+
+           group.enter()
+           fetchStockDetails {
+               group.leave()
+           }
+
+           group.enter()
+           fetchCompanyPeers {
+               group.leave()
+           }
+
+           group.enter()
+           fetchInsiderSentiments {
+               group.leave()
+           }
+
+           group.enter()
+           fetchLatestNews {
+               group.leave()
+           }
+
+        group.enter()
+            fetchHourlyChartData(symbol: symbol) { result in
+                switch result {
+                case .success(let chartData):
+                    DispatchQueue.main.async {
+                        self.hourlyChartData = chartData
+                    }
+                case .failure(let error):
+                    print("Failed to fetch hourly chart data: \(error)")
+                }
+                group.leave()
+            }
+
+        // Fetch historical chart data
+          group.enter()
+          fetchHistoricalChartData(symbol: symbol) { result in
+              switch result {
+              case .success(let chartData):
+                  DispatchQueue.main.async {
+                      self.historicalChartData = chartData
+                  }
+              case .failure(let error):
+                  print("Failed to fetch historical chart data: \(error)")
+              }
+              group.leave()
+          }
+        
+        // Fetch recommendation trends
+            group.enter()
+            fetchRecommendationTrends(symbol: symbol) { result in
+                switch result {
+                case .success(let trends):
+                    DispatchQueue.main.async {
+                        self.recommendationTrends = trends
+                    }
+                case .failure(let error):
+                    print("Failed to fetch recommendation trends: \(error)")
+                }
+                group.leave()
+            }
+        
+        // Fetch historical EPS
+           group.enter()
+           fetchHistoricalEPS(symbol: symbol) { result in
+               switch result {
+               case .success(let epsData):
+                   DispatchQueue.main.async {
+                       self.historicalEPS = epsData
+                   }
+               case .failure(let error):
+                   print("Failed to fetch historical EPS: \(error)")
+               }
+               group.leave()
+           }
+
+           group.notify(queue: .main) {
+               self.isLoading = false
+               self.isChartReady = true
+               completion()
+           }
+       }
     
     
     func addToFavorites(completion: @escaping (Bool, String) -> Void) {
@@ -219,7 +313,7 @@ class StockDetailsModel: ObservableObject {
 
 
     
-    func fetchStockDetails(symbol: String) {
+    func fetchStockDetails(completion: @escaping () -> Void) {
             isLoading = true
             let group = DispatchGroup()
             
@@ -234,6 +328,7 @@ class StockDetailsModel: ObservableObject {
                     }
                     group.leave()
                 }
+                    completion()
             }
             
             group.enter()
@@ -281,7 +376,7 @@ class StockDetailsModel: ObservableObject {
         }
     }
     
-    func fetchCompanyPeers() {
+    func fetchCompanyPeers(completion: @escaping () -> Void) {
             let peersURL = "http://localhost:3000/company_peers?symbol=\(symbol)"
             AF.request(peersURL).responseDecodable(of: [String].self) { response in
                 DispatchQueue.main.async {
@@ -293,9 +388,10 @@ class StockDetailsModel: ObservableObject {
                     }
                 }
             }
+            completion()
         }
     
-    func fetchInsiderSentiments() {
+    func fetchInsiderSentiments(completion: @escaping () -> Void) {
         let sentimentURL = "http://localhost:3000/insider_sentiment?symbol=\(symbol)"
         AF.request(sentimentURL).responseDecodable(of: InsiderSentiment.self) { response in
             DispatchQueue.main.async {
@@ -307,6 +403,7 @@ class StockDetailsModel: ObservableObject {
                 }
             }
         }
+        completion()
     }
     
     func fetchRecommendationTrends(symbol: String, completion: @escaping (Result<[RecommendationTrend], Error>) -> Void) {
@@ -331,7 +428,7 @@ class StockDetailsModel: ObservableObject {
         }
     }
 
-    func fetchLatestNews() {
+    func fetchLatestNews(completion: @escaping () -> Void) {
         let newsURL = "http://localhost:3000/latest_news?symbol=\(symbol)"
         AF.request(newsURL).responseDecodable(of: [NewsArticle].self) { response in
             DispatchQueue.main.async {
@@ -345,6 +442,7 @@ class StockDetailsModel: ObservableObject {
                 }
             }
         }
+        completion()
     }
 
 

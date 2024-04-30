@@ -40,10 +40,12 @@ struct HighchartsView: UIViewRepresentable {
     
     
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        guard let filePath = Bundle.main.path(forResource: "ChartView", ofType: "html") else { return }
-        let fileUrl = URL(fileURLWithPath: filePath)
-        let request = URLRequest(url: fileUrl)
-        uiView.load(request)
+        if stockService.isChartReady {
+                guard let filePath = Bundle.main.path(forResource: "ChartView", ofType: "html") else { return }
+                let fileUrl = URL(fileURLWithPath: filePath)
+                let request = URLRequest(url: fileUrl)
+                uiView.load(request)
+            }
     }
     
     func makeCoordinator() -> Coordinator {
@@ -343,7 +345,6 @@ struct HighchartsView: UIViewRepresentable {
                 {
                     chart: {
                         type: 'column',
-                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
                         height: '100%'
                     },
                     title: {
@@ -412,7 +413,6 @@ struct HighchartsView: UIViewRepresentable {
                 {
                     chart: {
                         type: 'spline',
-                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
                         height: '100%'
                     },
                     title: {

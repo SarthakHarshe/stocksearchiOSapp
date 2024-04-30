@@ -13,16 +13,14 @@ struct StockDetailsView: View {
     let symbol: String
     @StateObject private var stockService: StockDetailsModel
     @StateObject private var portfolioViewModel = PortfolioViewModel()
-    
-    
+
     // State for managing sheet presentation
-        @State private var showingTradeSheet = false
+    @State private var showingTradeSheet = false
     @State private var tradeType: TradeType = .buy
     @State private var toastMessage: String?
     @State private var showToast = false
-    @State private var toastMessageforsheet = ""
+    @State private var isLoading = true
 
-    
     init(symbol: String) {
         self.symbol = symbol
         _stockService = StateObject(wrappedValue: StockDetailsModel(symbol: symbol))
@@ -31,343 +29,351 @@ struct StockDetailsView: View {
     var body: some View {
         ScrollView {
             VStack {
-                if stockService.isLoading {
-                    ProgressView("Loading...")
-                } else if let stockInfo = stockService.stockInfo, let companyProfile = stockService.companyProfile {
-                    
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text(companyProfile.name)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            if let imageUrl = URL(string: companyProfile.logo), !companyProfile.logo.isEmpty {
-                                KFImage(imageUrl)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipped()
-                                    .cornerRadius(10)
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                    
-                    HStack(alignment: .firstTextBaseline) {
-                        Text("$\(stockInfo.currentPrice, specifier: "%.2f")")
-                            .font(.largeTitle)
-                        
-                        Image(systemName: stockInfo.change >= 0 ? "arrow.up.right" : "arrow.down.right")
-                            .foregroundColor(stockInfo.change >= 0 ? .green : .red)
-                        
-                        Text("\(stockInfo.change >= 0 ? "+" : "")\(stockInfo.change, specifier: "%.2f")")
-                            .foregroundColor(stockInfo.change >= 0 ? .green : .red)
-                        
-                        Text("(\(stockInfo.changePercentage, specifier: "%.2f")%)")
-                            .foregroundColor(stockInfo.change >= 0 ? .green : .red)
-                        
+                if isLoading {
                         Spacer()
-                    }
-                    .padding(.horizontal)
-                    VStack(alignment: .leading, spacing: 20) {
-                        
-                        // Highcharts Section
-                        TabView {
-                            HighchartsView(stockService: stockService, htmlName: "ChartView", symbol: symbol, chartType: .hourly)
-                                .tabItem {
-                                    Image(systemName: "chart.xyaxis.line")
-                                    Text("Hourly")
-                                }
-                            
-                            HighchartsView(stockService: stockService, htmlName: "ChartView", symbol: symbol, chartType: .historical)
-                                .tabItem {
-                                    Image(systemName: "clock")
-                                    Text("Historical")
-                                }
-                            
-                        }
-                        .frame(width: 400, height: 400)
-                        
-                        
-                    }
-                    
-                    //Portfolio Section
-                    VStack(alignment: .leading) {
-                        if let stock = portfolioViewModel.stocks.first(where: { $0.symbol == self.symbol }) {
-                            VStack(alignment: .leading) {
-                                HStack {
-                                    Text("Portfolio")
-                                        .font(.title2)
-                                    Spacer()
-                                }
-                            }
-                            .padding(.horizontal)
-                            VStack(alignment: .leading, spacing: 5) {
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text("Shares Owned: \(stock.quantity)")
-                                        Text("Avg. Cost / Share: $\(stock.averageCost, specifier: "%.2f")")
-                                        Text("Total Cost: $\(stock.totalCost, specifier: "%.2f")")
-                                        let change = (stock.currentPrice * Double(stock.quantity)) - stock.totalCost
-                                        HStack(spacing: 2) {
-                                                                Text("Change:")
-                                                                Text("$\(change >= 0 ? "+" : "")\(change, specifier: "%.2f")")
-                                                                    .foregroundColor(change >= 0 ? .green : .red)
-                                                            }
-                                        HStack(spacing: 2) {
-                                                                Text("Market Value:")
-                                                                Text("$\(stock.currentPrice * Double(stock.quantity), specifier: "%.2f")")
-                                                                    .foregroundColor(change >= 0 ? .green : .red)
-                                                            }
-                                    }
-                                    Spacer()
-                                    Button(action: {
-                                        self.showingTradeSheet = true
-                                    }) {
-                                        Text("Trade")
-                                            .foregroundColor(.white)
-                                            .padding()
-                                            .padding(.horizontal, 35)
-                                            .background(Color.green)
-                                            .cornerRadius(20)
-                                    }
-                                }
-                                .padding(.horizontal)
-                                
-                            }
-                            
-                        }
-                        else {
-                            VStack(alignment: .leading, spacing: 5) {
-                                HStack {
-                                    VStack {
-                                        Text("You have 0 shares of \(symbol).")
-                                        Text("Start Trading!")
-                                    }
-                                    Spacer()
-                                    Button(action: {
-                                        self.showingTradeSheet = true
-                                    }) {
-                                        Text("Trade")
-                                            .foregroundColor(.white)
-                                            .padding()
-                                            .padding(.horizontal, 35)
-                                            .background(Color.green)
-                                            .cornerRadius(20)
-                                    }
-                                }
-                                .padding()
-                            }
-                        }
-                    }
-                    
-                    //Stats Section
-                    VStack(alignment: .leading) {
-                        VStack {
-                            HStack {
-                                Text("Stats")
-                                    .font(.title2)
-                                Spacer()
-                                
-                            }
-                        }
-                        
-                        VStack(alignment: .leading) {
-                            HStack{
-                                VStack(alignment: .leading) {
-                                    Text("High Price: \(stockInfo.high, specifier: "%.2f")")
-                                        .padding(.vertical)
-                                    Text("Low Price:  \(stockInfo.low, specifier: "%.2f")")
-                                }
-                                Spacer()
-                                VStack(alignment: .leading) {
-                                    Text("Open Price: \(stockInfo.open, specifier: "%.2f")")
-                                        .padding(.vertical)
-                                    Text("Prev. Close:  \(stockInfo.previousClose, specifier: "%.2f")")
-                                }
-                                Spacer()
-                            }
-                        }
-                    }
-                    .padding()
-                    
-                    // About Section
-                    VStack(alignment: .leading) {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("IPO StartDate:")
-                                Text("Industry:")
-                                Text("Webpage:")
-                                Text("Company Peers:")
-                            }
-
-                            Spacer(minLength: 50)  // Ensures some spacing even when links are present
-
-                            VStack(alignment: .leading) {
-                                Text("\(companyProfile.ipo)")
-                                Text("\(companyProfile.industry)")
-                                Link(companyProfile.webpage, destination: URL(string: companyProfile.webpage)!)
-                                    .foregroundColor(.blue)
-
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 7) {
-                                        ForEach(stockService.companyPeers.filter { !$0.contains(".") }, id: \.self) { peer in
-                                            NavigationLink(destination: StockDetailsView(symbol: peer)) {
-                                                Text(peer)
-                                                    .foregroundColor(.blue)
-                                                    .font(.system(size: 14))
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            Spacer()
-                        }
-                    }
-                    .padding()
-
-                    
-                    //Insights Section
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Insights")
-                            .font(.title2)
-                            .frame(maxWidth: .infinity, alignment: .center)
-
-                        if let sentimentData = stockService.insiderSentiments?.data {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 20) {
-                                    Text(stockService.companyProfile?.name ?? "Company")
-                                        .fontWeight(.semibold)
-                                    Divider()
-                                    Text("Total")
-                                    Divider()
-                                    Text("Positive")
-                                    Divider()
-                                    Text("Negative")
-                                    Divider()
-                                }
-                                
-                                
-                                Spacer()
-                                
-                                VStack(alignment: .leading, spacing: 20) {
-                                    Text("MSPR")
-                                        .fontWeight(.semibold)
-                                    Divider()
-                                    Text(formatNumber(sentimentData.totalMSPR))
-                                    Divider()
-                                    Text(formatNumber(sentimentData.positiveMSPR))
-                                    Divider()
-                                    Text(formatNumber(sentimentData.negativeMSPR))
-                                    Divider()
-                                }
-                                
-                                Spacer()
-                                
-                                VStack(alignment: .leading, spacing: 20) {
-                                    Text("Change")
-                                        .fontWeight(.semibold)
-                                    Divider()
-                                    Text(formatNumber(sentimentData.totalChange))
-                                    Divider()
-                                    Text(formatNumber(sentimentData.positiveChange))
-                                    Divider()
-                                    Text(formatNumber(sentimentData.negativeChange))
-                                    Divider()
-                                }
-                                
-                                Spacer()
-                            }
-                            
-                            
-                        } else {
-                            Text("No insider sentiment data available.")
-                                .frame(maxWidth: .infinity, alignment: .center)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-
-                    
-                    
-                    //Insights End here
-                    
-                    
-                    //Recommendation Chart Section
-                    VStack() {
-                        HighchartsView(stockService: stockService, htmlName: "ChartView", symbol: symbol, chartType: .recommendationTrends)
-                    }
-                    .frame(height: 400)
-                    .padding()
-                    
-                    
-                    
-                    //Recommendation Chart Section ends here
-                    
-                    //Historical EPS Chart
-                        VStack() {
-                            HighchartsView(stockService: stockService, htmlName: "ChartView", symbol: symbol, chartType: .historicalEPS)
-                                .frame(height: 400)
-
-                        }
-                        .padding()                       
-                    //Historical EPS Chart ends here
-                    
-                    
-                    //Latest News Section
-                    VStack(alignment: .leading) {
-                        Text("Latest News")
-                            .font(.title2)
-                            .padding(.top)
-
-                        ForEach(Array(stockService.latestNews.enumerated()), id: \.element.id) { (index, article) in
-                            NewsView(article: article, isFirstArticle: index == 0)
-                                .padding(.vertical)
-                        }
-                    }
-                    .padding(.horizontal)
-                    
-                    //News section ends here
-                    
-                    
-                }
-                else {
-                    Text("Failed to load stock details.")
+                    ProgressView("Fetching Data...").padding(.top, 300)
+                } else if let stockInfo = stockService.stockInfo, let companyProfile = stockService.companyProfile {
+                    stockDetailsContent(stockInfo: stockInfo, companyProfile: companyProfile)
+                } else {
+                    Text("Failed to load stock details.").padding(.top, 300)
                 }
             }
             .padding()
             .navigationTitle(symbol)
             .navigationBarItems(trailing: favoriteButton)
             .onAppear {
-                stockService.fetchStockDetails(symbol: symbol)
-                stockService.fetchCompanyPeers()
-                stockService.fetchInsiderSentiments()
-                stockService.fetchLatestNews()
-                portfolioViewModel.fetchUserData()
-                portfolioViewModel.fetchPortfolio()
+                if !stockService.isChartReady {
+                        fetchData()
+                    }
             }
             .sheet(isPresented: $showingTradeSheet) {
-                            TradeSheetView(isPresented: self.$showingTradeSheet, symbol: symbol, tradeType: self.tradeType)
-                                .environmentObject(portfolioViewModel)
+                TradeSheetView(isPresented: self.$showingTradeSheet, symbol: symbol, tradeType: self.tradeType)
+                    .environmentObject(portfolioViewModel)
             }
         }
         .overlay(
-                        toastOverlay
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.clear)
-                            .edgesIgnoringSafeArea(.all),
-                        alignment: .top
-                    )
+            toastOverlay
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.clear)
+                .edgesIgnoringSafeArea(.all),
+            alignment: .top
+        )
+    }
+
+    private func fetchData() {
+        isLoading = true
+        stockService.fetchAllData() {
+            DispatchQueue.main.async {
+                self.isLoading = false
+            }
+        }
+    }
+
+    private func stockDetailsContent(stockInfo: StockInfo, companyProfile: CompanyProfile) -> some View {
+        VStack(alignment: .leading) {
+            companyHeader(companyProfile: companyProfile)
+            stockInformation(stockInfo: stockInfo)
+            financialChartsSection()
+            portfolioSection()
+            statsSection(stockInfo: stockInfo)
+            aboutSection(companyProfile: companyProfile)
+            insightsSection()
+            chartSections()
+            latestNewsSection()
+        }
+    }
+
+    private func companyHeader(companyProfile: CompanyProfile) -> some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Text(companyProfile.name)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                if let imageUrl = URL(string: companyProfile.logo), !companyProfile.logo.isEmpty {
+                    KFImage(imageUrl)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 50, height: 50)
+                        .clipped()
+                        .cornerRadius(10)
+                }
+            }
+        }
+        .padding(.horizontal)
+    }
+
+    private func stockInformation(stockInfo: StockInfo) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text("$\(stockInfo.currentPrice, specifier: "%.2f")")
+                .font(.largeTitle)
+            
+            Image(systemName: stockInfo.change >= 0 ? "arrow.up.right" : "arrow.down.right")
+                .foregroundColor(stockInfo.change >= 0 ? .green : .red)
+            
+            Text("\(stockInfo.change >= 0 ? "+" : "")\(stockInfo.change, specifier: "%.2f")")
+                .foregroundColor(stockInfo.change >= 0 ? .green : .red)
+            
+            Text("(\(stockInfo.changePercentage, specifier: "%.2f")%)")
+                .foregroundColor(stockInfo.change >= 0 ? .green : .red)
+            
+            Spacer()
+        }
+        .padding(.horizontal)
     }
     
+    private func financialChartsSection() -> some View {
+        TabView {
+                                    HighchartsView(stockService: stockService, htmlName: "ChartViewa", symbol: symbol, chartType: .hourly)
+                                        .tabItem {
+                                            Image(systemName: "chart.xyaxis.line")
+                                            Text("Hourly")
+                                        }
+                                    
+                                    HighchartsView(stockService: stockService, htmlName: "ChartView", symbol: symbol, chartType: .historical)
+                                        .tabItem {
+                                            Image(systemName: "clock")
+                                            Text("Historical")
+                                        }
+                                    
+                                }
+                                .frame(width: 400, height: 400)
+    }
+
+    private func portfolioSection() -> some View {
+        VStack(alignment: .leading) {
+            if let stock = portfolioViewModel.stocks.first(where: { $0.symbol == self.symbol }) {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Portfolio")
+                            .font(.title2)
+                        Spacer()
+                    }
+                }
+                .padding(.horizontal)
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text("Shares Owned: \(stock.quantity)")
+                            Text("Avg. Cost / Share: $\(stock.averageCost, specifier: "%.2f")")
+                            Text("Total Cost: $\(stock.totalCost, specifier: "%.2f")")
+                            let change = (stock.currentPrice * Double(stock.quantity)) - stock.totalCost
+                            HStack(spacing: 2) {
+                                Text("Change:")
+                                Text("$\(change >= 0 ? "+" : "")\(change, specifier: "%.2f")")
+                                    .foregroundColor(change >= 0 ? .green : .red)
+                            }
+                            HStack(spacing: 2) {
+                                Text("Market Value:")
+                                Text("$\(stock.currentPrice * Double(stock.quantity), specifier: "%.2f")")
+                                    .foregroundColor(change >= 0 ? .green : .red)
+                            }
+                        }
+                        Spacer()
+                        Button(action: {
+                            self.showingTradeSheet = true
+                        }) {
+                            Text("Trade")
+                                .foregroundColor(.white)
+                                .padding()
+                                .padding(.horizontal, 35)
+                                .background(Color.green)
+                                .cornerRadius(20)
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                }
+                
+            }
+            else {
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack {
+                        VStack {
+                            Text("You have 0 shares of \(symbol).")
+                            Text("Start Trading!")
+                        }
+                        Spacer()
+                        Button(action: {
+                            self.showingTradeSheet = true
+                        }) {
+                            Text("Trade")
+                                .foregroundColor(.white)
+                                .padding()
+                                .padding(.horizontal, 35)
+                                .background(Color.green)
+                                .cornerRadius(20)
+                        }
+                    }
+                    .padding()
+                }
+            }
+        }
+    }
+
+    private func statsSection(stockInfo: StockInfo) -> some View {
+        VStack(alignment: .leading) {
+            VStack {
+                HStack {
+                    Text("Stats")
+                        .font(.title2)
+                    Spacer()
+                    
+                }
+            }
+            
+            VStack(alignment: .leading) {
+                HStack{
+                    VStack(alignment: .leading) {
+                        Text("High Price: \(stockInfo.high, specifier: "%.2f")")
+                            .padding(.vertical)
+                        Text("Low Price:  \(stockInfo.low, specifier: "%.2f")")
+                    }
+                    Spacer()
+                    VStack(alignment: .leading) {
+                        Text("Open Price: \(stockInfo.open, specifier: "%.2f")")
+                            .padding(.vertical)
+                        Text("Prev. Close:  \(stockInfo.previousClose, specifier: "%.2f")")
+                    }
+                    Spacer()
+                }
+            }
+        }
+        .padding()
+    }
+
+    private func aboutSection(companyProfile: CompanyProfile) -> some View {
+        VStack(alignment: .leading) {
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("IPO StartDate:")
+                    Text("Industry:")
+                    Text("Webpage:")
+                    Text("Company Peers:")
+                }
+
+                Spacer(minLength: 50)  // Ensures some spacing even when links are present
+
+                VStack(alignment: .leading) {
+                    Text("\(companyProfile.ipo)")
+                    Text("\(companyProfile.industry)")
+                    Link(companyProfile.webpage, destination: URL(string: companyProfile.webpage)!)
+                        .foregroundColor(.blue)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 7) {
+                            ForEach(stockService.companyPeers.filter { !$0.contains(".") }, id: \.self) { peer in
+                                NavigationLink(destination: StockDetailsView(symbol: peer)) {
+                                    Text(peer)
+                                        .foregroundColor(.blue)
+                                        .font(.system(size: 14))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer()
+            }
+        }
+        .padding()
+    }
+
+    private func insightsSection() -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Insights")
+                .font(.title2)
+                .frame(maxWidth: .infinity, alignment: .center)
+
+            if let sentimentData = stockService.insiderSentiments?.data {
+                HStack {
+                    VStack(alignment: .leading, spacing: 20) {
+                        Text(stockService.companyProfile?.name ?? "Company")
+                            .fontWeight(.semibold)
+                        Divider().padding(.trailing)
+                        Text("Total")
+                        Divider().padding(.trailing)
+                        Text("Positive")
+                        Divider().padding(.trailing)
+                        Text("Negative")
+                        Divider().padding(.trailing)
+                    }
+                    
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .leading, spacing: 20) {
+                        Text("MSPR")
+                            .fontWeight(.semibold)
+                        Divider().padding(.trailing)
+                        Text(formatNumber(sentimentData.totalMSPR))
+                        Divider().padding(.trailing)
+                        Text(formatNumber(sentimentData.positiveMSPR))
+                        Divider().padding(.trailing)
+                        Text(formatNumber(sentimentData.negativeMSPR))
+                        Divider().padding(.trailing)
+                    }
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .leading, spacing: 20) {
+                        Text("Change")
+                            .fontWeight(.semibold)
+                        Divider()
+                        Text(formatNumber(sentimentData.totalChange))
+                        Divider()
+                        Text(formatNumber(sentimentData.positiveChange))
+                        Divider()
+                        Text(formatNumber(sentimentData.negativeChange))
+                        Divider()
+                    }
+                    
+                    Spacer()
+                }
+                
+                
+            } else {
+                Text("No insider sentiment data available.")
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+    }
+
+    private func chartSections() -> some View {
+        VStack {
+            HighchartsView(stockService: stockService, htmlName: "ChartView", symbol: symbol, chartType: .recommendationTrends)
+                .frame(height: 400)
+                .padding(.horizontal)
+            
+            HighchartsView(stockService: stockService, htmlName: "ChartView", symbol: symbol, chartType: .historicalEPS)
+                .frame(height: 400)
+                .padding(.horizontal)
+        }
+    }
+
+    private func latestNewsSection() -> some View {
+        VStack(alignment: .leading) {
+            Text("Latest News")
+                .font(.title2)
+                .padding(.top)
+
+            ForEach(Array(stockService.latestNews.enumerated()), id: \.element.id) { (index, article) in
+                NewsView(article: article, isFirstArticle: index == 0)
+                    .padding(.vertical)
+            }
+        }
+        .padding(.horizontal)
+    }
+
     private var favoriteButton: some View {
         Button(action: toggleFavorite) {
             Image(systemName: stockService.isFavorite ? "plus.circle.fill" : "plus.circle")
                 .foregroundColor(.black)
         }
     }
-    
+
     private func toggleFavorite() {
         if stockService.isFavorite {
             stockService.removeFromFavorites { success, message in
@@ -387,45 +393,42 @@ struct StockDetailsView: View {
             }
         }
     }
-    
+
     private func handleToast(success: Bool, message: String) {
-            toastMessage = message
-            showToast = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                showToast = false
-            }
+        toastMessage = message
+        showToast = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            showToast = false
         }
-    
+    }
+
     private var toastOverlay: some View {
-            Group {
-                if showToast {
-                    VStack {
-                        Text(toastMessage ?? "")
-                            .padding()
-                            .background(Color.black.opacity(0.75))
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                            .padding(.top, 100)
-                            .transition(.opacity)
-                            .animation(.easeInOut, value: showToast)
-                    }
+        Group {
+            if showToast {
+                VStack {
+                    Text(toastMessage ?? "")
+                        .padding()
+                        .background(Color.black.opacity(0.75))
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .padding(.top, 100)
+                        .transition(.opacity)
+                        .animation(.easeInOut, value: showToast)
                 }
             }
         }
-    
-    private func formatNumber(_ number: Double) -> String {
-           // Create a formatter that limits to three integer digits
-           let formatter = NumberFormatter()
-           formatter.maximumIntegerDigits = 3
-           formatter.maximumFractionDigits = 2
-           formatter.minimumFractionDigits = 2
-           formatter.usesGroupingSeparator = false
-           
-           return formatter.string(from: NSNumber(value: number)) ?? "\(number)"
-       }
-    
-}
+    }
 
+    private func formatNumber(_ number: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.maximumIntegerDigits = 3
+        formatter.maximumFractionDigits = 2
+        formatter.minimumFractionDigits = 2
+        formatter.usesGroupingSeparator = false
+        
+        return formatter.string(from: NSNumber(value: number)) ?? "\(number)"
+    }
+}
 
 // Dummy data for preview
 struct StockDetailsView_Previews: PreviewProvider {
@@ -433,5 +436,6 @@ struct StockDetailsView_Previews: PreviewProvider {
         StockDetailsView(symbol: "AAPL")
     }
 }
+
 
 
