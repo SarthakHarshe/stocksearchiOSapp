@@ -14,16 +14,8 @@ struct HomeScreen: View {
     @StateObject var favoritesViewModel = FavoritesViewModel()
     @State private var isSearching = false
     
-    private var isLoading: Bool {
-            portfolioViewModel.isLoading || favoritesViewModel.isLoading
-        }
-    
     var body: some View {
         NavigationView {
-            VStack {
-                if isLoading {
-                    ProgressView("Loading...")
-                } else {
                     List {
                         if !searchViewModel.searchText.isEmpty {
                             ForEach(searchViewModel.searchResults) { stockSymbol in
@@ -88,9 +80,6 @@ struct HomeScreen: View {
                     .toolbar {
                         EditButton()
                     }
-                }
-            }
-            
         }
     }
     

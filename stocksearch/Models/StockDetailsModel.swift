@@ -151,7 +151,7 @@ class StockDetailsModel: ObservableObject {
     @Published var historicalChartData: [HistoricalChartData] = []
     @Published var recommendationTrends: [RecommendationTrend] = []
     @Published var historicalEPS: [HistoricalEPS] = []
-    @Published var isChartReady = false
+//    @Published var isChartReady = false
 
 
 
@@ -214,6 +214,7 @@ class StockDetailsModel: ObservableObject {
               case .success(let chartData):
                   DispatchQueue.main.async {
                       self.historicalChartData = chartData
+                      print("THIS IS THE DATA INSIDE THE FETCHALLFUNCTION", self.historicalChartData)
                   }
               case .failure(let error):
                   print("Failed to fetch historical chart data: \(error)")
@@ -251,7 +252,7 @@ class StockDetailsModel: ObservableObject {
 
            group.notify(queue: .main) {
                self.isLoading = false
-               self.isChartReady = true
+//               self.isChartReady = true
                completion()
            }
        }
@@ -368,8 +369,7 @@ class StockDetailsModel: ObservableObject {
         AF.request(urlString).responseDecodable(of: HistoricalChartDataResponse.self) { response in
             switch response.result {
             case .success(let dataResponse):
-                let chartData = dataResponse.results.map { HistoricalChartData(x: $0.t, open: $0.o, high: $0.h, low: $0.l, close: $0.c, volume: $0.v) }
-                completion(.success(chartData))
+                completion(.success(dataResponse.results.map { HistoricalChartData(x: $0.t, open: $0.o, high: $0.h, low: $0.l, close: $0.c, volume: $0.v) }))
             case .failure(let error):
                 completion(.failure(error))
             }

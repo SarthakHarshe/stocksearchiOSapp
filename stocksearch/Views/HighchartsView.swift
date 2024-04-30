@@ -40,12 +40,10 @@ struct HighchartsView: UIViewRepresentable {
     
     
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        if stockService.isChartReady {
-                guard let filePath = Bundle.main.path(forResource: "ChartView", ofType: "html") else { return }
-                let fileUrl = URL(fileURLWithPath: filePath)
-                let request = URLRequest(url: fileUrl)
-                uiView.load(request)
-            }
+        guard let filePath = Bundle.main.path(forResource: "ChartView", ofType: "html") else { return }
+        let fileUrl = URL(fileURLWithPath: filePath)
+        let request = URLRequest(url: fileUrl)
+        uiView.load(request)
     }
     
     func makeCoordinator() -> Coordinator {
@@ -175,11 +173,10 @@ struct HighchartsView: UIViewRepresentable {
     
     // Function for the sma chart
     private func injectSMAChartData(_ webView: WKWebView) {
-        stockService.fetchHistoricalChartData(symbol: symbol) { result in
-            switch result {
-            case .success(let HistoricalChartData):
-                let ohlcData = HistoricalChartData.map { "[\($0.x), \($0.open), \($0.high), \($0.low), \($0.close)]" }.joined(separator: ", ")
-                let volumeData = HistoricalChartData.map { "[\($0.x), \($0.volume)]" }.joined(separator: ", ")
+        let historicalData = stockService.historicalChartData
+        
+                let ohlcData = historicalData.map { "[\($0.x), \($0.open), \($0.high), \($0.low), \($0.close)]" }.joined(separator: ", ")
+                let volumeData = historicalData.map { "[\($0.x), \($0.volume)]" }.joined(separator: ", ")
 
                 let jsChartData = """
                 {
@@ -299,12 +296,7 @@ struct HighchartsView: UIViewRepresentable {
                         }
                     }
                 }
-
-            case .failure(let error):
-                print("Error fetching historical data for SMA chart: \(error)")
-            }
         }
-    }
     
     private func injectRecommendationTrends(_ webView: WKWebView) {
         stockService.fetchRecommendationTrends(symbol: symbol) { result in

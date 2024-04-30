@@ -42,9 +42,7 @@ struct StockDetailsView: View {
             .navigationTitle(symbol)
             .navigationBarItems(trailing: favoriteButton)
             .onAppear {
-                if !stockService.isChartReady {
-                        fetchData()
-                    }
+                fetchData()
             }
             .sheet(isPresented: $showingTradeSheet) {
                 TradeSheetView(isPresented: self.$showingTradeSheet, symbol: symbol, tradeType: self.tradeType)
