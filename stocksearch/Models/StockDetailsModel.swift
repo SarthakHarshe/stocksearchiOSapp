@@ -151,6 +151,7 @@ class StockDetailsModel: ObservableObject {
     @Published var historicalChartData: [HistoricalChartData] = []
     @Published var recommendationTrends: [RecommendationTrend] = []
     @Published var historicalEPS: [HistoricalEPS] = []
+    @Published var isDataLoaded = false
 //    @Published var isChartReady = false
 
 
@@ -163,12 +164,25 @@ class StockDetailsModel: ObservableObject {
     
     
     init(symbol: String) {
-            self.symbol = symbol
-            checkIfFavorite()
-            fetchAllData() {
-                    print("Initial data fetching is complete.")
+        self.symbol = symbol
+        self.isLoading = true
+        self.isDataLoaded = false
+        checkIfFavorite()
+    }
+    
+    func fetchDataIfNeeded() {
+        if isLoading && !isDataLoaded {
+            fetchAllData {
+                DispatchQueue.main.async {
+                    self.isDataLoaded = true
+                    self.isLoading = false
+                    print("All data fetching operations are complete.")
                 }
+            }
         }
+    }
+
+
     
     func fetchAllData(completion: @escaping () -> Void) {
            isLoading = true
@@ -176,8 +190,16 @@ class StockDetailsModel: ObservableObject {
 
            group.enter()
            fetchStockDetails {
+               print("Stock details fetched.")
                group.leave()
            }
+        
+        // Fetch Company Profile
+                group.enter()
+                fetchCompanyProfile {
+                    print("Company profile fetched.")
+                    group.leave()
+                }
 
            group.enter()
            fetchCompanyPeers {
@@ -214,7 +236,6 @@ class StockDetailsModel: ObservableObject {
               case .success(let chartData):
                   DispatchQueue.main.async {
                       self.historicalChartData = chartData
-                      print("THIS IS THE DATA INSIDE THE FETCHALLFUNCTION", self.historicalChartData)
                   }
               case .failure(let error):
                   print("Failed to fetch historical chart data: \(error)")
@@ -251,8 +272,8 @@ class StockDetailsModel: ObservableObject {
            }
 
            group.notify(queue: .main) {
-               self.isLoading = false
 //               self.isChartReady = true
+               print("All fetch operations completed.")
                completion()
            }
        }
@@ -314,40 +335,33 @@ class StockDetailsModel: ObservableObject {
 
 
     
-    func fetchStockDetails(completion: @escaping () -> Void) {
-            isLoading = true
-            let group = DispatchGroup()
-            
-            group.enter()
-                AF.request("\(quoteURL)?symbol=\(symbol)").responseDecodable(of: StockInfo.self) { response in
-                DispatchQueue.main.async {
-                    switch response.result {
-                    case .success(let stockInfo):
+    private func fetchStockDetails(completion: @escaping () -> Void) {
+            AF.request("\(quoteURL)?symbol=\(symbol)", method: .get).validate().responseDecodable(of: StockInfo.self) { response in
+                switch response.result {
+                case .success(let stockInfo):
+                    DispatchQueue.main.async {
                         self.stockInfo = stockInfo
-                    case .failure(let error):
-                        print("Stock quote fetching error: \(error)")
+                        completion()
                     }
-                    group.leave()
-                }
+                case .failure(let error):
+                    print("Error fetching stock details: \(error.localizedDescription)")
                     completion()
-            }
-            
-            group.enter()
-                AF.request("\(profileURL)?symbol=\(symbol)").responseDecodable(of: CompanyProfile.self) { response in
-                DispatchQueue.main.async {
-                    switch response.result {
-                    case .success(let profile):
-                        self.companyProfile = profile
-                    case .failure(let error):
-                        print("Company profile fetching error: \(error)")
-                    }
-                    group.leave()
                 }
             }
-
-            group.notify(queue: .main) {
-                self.isLoading = false
-                self.checkIfFavorite()
+        }
+    
+    private func fetchCompanyProfile(completion: @escaping () -> Void) {
+            AF.request("\(profileURL)?symbol=\(symbol)", method: .get).validate().responseDecodable(of: CompanyProfile.self) { response in
+                switch response.result {
+                case .success(let profile):
+                    DispatchQueue.main.async {
+                        self.companyProfile = profile
+                        completion()
+                    }
+                case .failure(let error):
+                    print("Error fetching company profile: \(error.localizedDescription)")
+                    completion()
+                }
             }
         }
     

@@ -11,7 +11,7 @@ import Kingfisher
 
 struct StockDetailsView: View {
     let symbol: String
-    @StateObject private var stockService: StockDetailsModel
+    @ObservedObject var stockService: StockDetailsModel
     @StateObject private var portfolioViewModel = PortfolioViewModel()
 
     // State for managing sheet presentation
@@ -19,20 +19,14 @@ struct StockDetailsView: View {
     @State private var tradeType: TradeType = .buy
     @State private var toastMessage: String?
     @State private var showToast = false
-    @State private var isLoading = true
-
-    init(symbol: String) {
-        self.symbol = symbol
-        _stockService = StateObject(wrappedValue: StockDetailsModel(symbol: symbol))
-    }
     
     var body: some View {
         ScrollView {
             VStack {
-                if isLoading {
+                if stockService.isDataLoaded == false {
                         Spacer()
                     ProgressView("Fetching Data...").padding(.top, 300)
-                } else if let stockInfo = stockService.stockInfo, let companyProfile = stockService.companyProfile {
+                } else if let stockInfo = stockService.stockInfo, let companyProfile = stockService.companyProfile, stockService.isDataLoaded {
                     stockDetailsContent(stockInfo: stockInfo, companyProfile: companyProfile)
                 } else {
                     Text("Failed to load stock details.").padding(.top, 300)
@@ -42,7 +36,7 @@ struct StockDetailsView: View {
             .navigationTitle(symbol)
             .navigationBarItems(trailing: favoriteButton)
             .onAppear {
-                fetchData()
+                stockService.fetchDataIfNeeded()
             }
             .sheet(isPresented: $showingTradeSheet) {
                 TradeSheetView(isPresented: self.$showingTradeSheet, symbol: symbol, tradeType: self.tradeType, stockDetailsModel: stockService)
@@ -56,15 +50,6 @@ struct StockDetailsView: View {
                 .edgesIgnoringSafeArea(.all),
             alignment: .top
         )
-    }
-
-    private func fetchData() {
-        isLoading = true
-        stockService.fetchAllData() {
-            DispatchQueue.main.async {
-                self.isLoading = false
-            }
-        }
     }
 
     private func stockDetailsContent(stockInfo: StockInfo, companyProfile: CompanyProfile) -> some View {
@@ -159,7 +144,7 @@ struct StockDetailsView: View {
                             HStack(spacing: 2) {
                                 Text("Change:")
                                 Text("$\(change > 0 ? "+" : "")\(change, specifier: "%.2f")")
-                                    .foregroundColor(change >= 0 ? .green : .red)
+                                    .foregroundColor(change > 0 ? .green : .red)
                             }
                             HStack(spacing: 2) {
                                 Text("Market Value:")
@@ -261,7 +246,7 @@ struct StockDetailsView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 7) {
                             ForEach(stockService.companyPeers.filter { !$0.contains(".") }, id: \.self) { peer in
-                                NavigationLink(destination: StockDetailsView(symbol: peer)) {
+                                NavigationLink(destination: StockDetailsView(symbol: peer, stockService: StockDetailsModel(symbol: peer))) {
                                     Text(peer)
                                         .foregroundColor(.blue)
                                         .font(.system(size: 14))
@@ -279,9 +264,18 @@ struct StockDetailsView: View {
 
     private func insightsSection() -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Insights")
-                .font(.title2)
+            VStack {
+                HStack {
+                    Text("Insights")
+                        .font(.title2)
+                    Spacer()
+                }
+            }
+            VStack {
+                Text("Insights")
+                    .font(.title2)
                 .frame(maxWidth: .infinity, alignment: .center)
+            }
 
             if let sentimentData = stockService.insiderSentiments?.data {
                 HStack {
@@ -431,7 +425,7 @@ struct StockDetailsView: View {
 // Dummy data for preview
 struct StockDetailsView_Previews: PreviewProvider {
     static var previews: some View {
-        StockDetailsView(symbol: "AAPL")
+        StockDetailsView(symbol: "AAPL", stockService: StockDetailsModel(symbol: "AAPL"))
     }
 }
 

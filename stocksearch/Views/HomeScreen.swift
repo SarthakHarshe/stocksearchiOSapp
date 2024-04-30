@@ -19,7 +19,7 @@ struct HomeScreen: View {
                     List {
                         if !searchViewModel.searchText.isEmpty {
                             ForEach(searchViewModel.searchResults) { stockSymbol in
-                                NavigationLink(destination: StockDetailsView(symbol: stockSymbol.symbol)) {
+                                NavigationLink(destination: StockDetailsView(symbol: stockSymbol.symbol, stockService: StockDetailsModel(symbol: stockSymbol.symbol))) {
                                     VStack(alignment: .leading) {
                                         Text(stockSymbol.symbol)
                                             .font(.headline)
@@ -38,7 +38,7 @@ struct HomeScreen: View {
                             Section(header: Text("Portfolio")) {
                                 PortfolioView(viewModel: portfolioViewModel).headerView
                                 ForEach(portfolioViewModel.stocks) { stock in
-                                    NavigationLink(destination: StockDetailsView(symbol: stock.symbol)) {
+                                    NavigationLink(destination: StockDetailsView(symbol: stock.symbol, stockService: StockDetailsModel(symbol: stock.symbol))) {
                                         PortfolioStockRow(stock: stock) // Using the row view here
                                     }
                                 }
@@ -50,7 +50,7 @@ struct HomeScreen: View {
                             
                             Section(header: Text("Favorites")) {
                                 ForEach(favoritesViewModel.favorites) { favorite in
-                                    NavigationLink(destination: StockDetailsView(symbol: favorite.symbol)) {
+                                    NavigationLink(destination: StockDetailsView(symbol: favorite.symbol, stockService: StockDetailsModel(symbol: favorite.symbol))) {
                                         FavoriteStockRow(favorite: favorite)
                                     }
                                 }
