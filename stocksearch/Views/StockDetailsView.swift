@@ -45,7 +45,7 @@ struct StockDetailsView: View {
                 fetchData()
             }
             .sheet(isPresented: $showingTradeSheet) {
-                TradeSheetView(isPresented: self.$showingTradeSheet, symbol: symbol, tradeType: self.tradeType)
+                TradeSheetView(isPresented: self.$showingTradeSheet, symbol: symbol, tradeType: self.tradeType, stockDetailsModel: stockService)
                     .environmentObject(portfolioViewModel)
             }
         }
@@ -158,13 +158,13 @@ struct StockDetailsView: View {
                             let change = (stock.currentPrice * Double(stock.quantity)) - stock.totalCost
                             HStack(spacing: 2) {
                                 Text("Change:")
-                                Text("$\(change >= 0 ? "+" : "")\(change, specifier: "%.2f")")
+                                Text("$\(change > 0 ? "+" : "")\(change, specifier: "%.2f")")
                                     .foregroundColor(change >= 0 ? .green : .red)
                             }
                             HStack(spacing: 2) {
                                 Text("Market Value:")
                                 Text("$\(stock.currentPrice * Double(stock.quantity), specifier: "%.2f")")
-                                    .foregroundColor(change >= 0 ? .green : .red)
+                                    .foregroundColor(change > 0 ? .green : .red)
                             }
                         }
                         Spacer()
@@ -368,7 +368,7 @@ struct StockDetailsView: View {
     private var favoriteButton: some View {
         Button(action: toggleFavorite) {
             Image(systemName: stockService.isFavorite ? "plus.circle.fill" : "plus.circle")
-                .foregroundColor(.black)
+                .foregroundColor(.blue)
         }
     }
 

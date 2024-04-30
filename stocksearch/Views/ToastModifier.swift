@@ -25,11 +25,12 @@ struct ToastModifier: ViewModifier {
         VStack {
             Spacer()
             Text(message)
-                .padding()
-                .background(Color.black.opacity(0.75))
-                .foregroundColor(Color.white)
-                .cornerRadius(8)
-                .padding(.bottom, 50)
+                .padding(30)
+                .background(Color.gray)
+                .foregroundColor(.white.opacity(0.60))
+                .cornerRadius(50)
+                .padding(.bottom, 30)
+                .font(.title2)
         }
     }
 }

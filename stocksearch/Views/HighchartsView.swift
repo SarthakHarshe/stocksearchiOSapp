@@ -154,7 +154,6 @@ struct HighchartsView: UIViewRepresentable {
                         },
                     }
                     """
-                print(jsChartOptions)
                 let jsCode = "updateHourlyChart(\(jsChartOptions))"
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     webView.evaluateJavaScript(jsCode) { (result, error) in

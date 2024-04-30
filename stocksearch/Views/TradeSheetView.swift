@@ -22,11 +22,11 @@ struct TradeSheetView: View {
     @Binding var isPresented: Bool
     let symbol: String
     let tradeType: TradeType
+    let stockDetailsModel: StockDetailsModel
     
     @State private var quantityString = ""
     @State private var showSuccessScreen = false
     @State private var successMessage = ""
-    @State private var isLoading = false
     @State private var showToast = false
     @State private var toastMessage = ""
     @State private var errorMessage: String?
@@ -46,22 +46,23 @@ struct TradeSheetView: View {
     var body: some View {
         NavigationView {
             VStack {
-                if isLoading {
-                    ProgressView("Processing...")
-                } else if showSuccessScreen {
+                if showSuccessScreen {
                     successView()
                 } else {
                     tradeFormView()
                 }
             }
-            .navigationBarItems(trailing: Button("Close") { isPresented = false })
+            .navigationBarItems(trailing: Button(action: { isPresented = false }) {
+                Image(systemName: "xmark")
+                    .foregroundColor(.black)
+            })
             .navigationBarTitleDisplayMode(.inline)
         }
     }
     
     private func tradeFormView() -> some View {
         VStack {
-            Text("Trade \(symbol) shares")
+            Text("Trade \(stockDetailsModel.stockInfo?.name ?? "Unknown") shares")
                 .font(.title3)
             
             Spacer()
@@ -71,16 +72,19 @@ struct TradeSheetView: View {
                     TextField("0", text: $quantityString)
                         .keyboardType(.numberPad)
                         .padding()
-                        .font(.system(size: 50))
+                        .font(.system(size: 100))
                     Spacer()
-                    Text(quantityString == "1" ? "Share" : "Shares")
-                        .padding()
-                }
                 HStack {
                     Spacer()
-                    Text("x\(currentStockPrice, specifier: "%.2f")/share = \(calculatedCost, specifier: "%.2f")")
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Text(quantityString <= "1" ? "Share" : "Shares")
+                        }.padding().font(.largeTitle)
+                        Text("x\(currentStockPrice, specifier: "%.2f")/share = \(calculatedCost, specifier: "%.2f")")
+                    }.padding(.top, 60)
+                    }
                 }
-                .padding()
             }
             
             Spacer()
@@ -92,7 +96,6 @@ struct TradeSheetView: View {
                     Button("Buy") {
                         self.confirmTrade(isBuy: true)
                     }
-                    .disabled(isLoading)
                     .foregroundColor(.white)
                     .padding()
                     .padding(.horizontal, 50)
@@ -103,7 +106,6 @@ struct TradeSheetView: View {
                     Button("Sell") {
                         self.confirmTrade(isBuy: false)
                     }
-                    .disabled(isLoading)
                     .foregroundColor(.white)
                     .padding()
                     .padding(.horizontal, 50)
@@ -135,17 +137,18 @@ struct TradeSheetView: View {
             Text("Congratulations")
                 .font(.title)
                 .foregroundColor(.white)
-            Text("You have successfully bought \(quantityString) Shares of \(symbol)")
+            Text("You have successfully \(tradeType.rawValue.lowercased()) \(quantityString) shares of \(symbol).")
                 .font(.subheadline)
                 .foregroundColor(.white)
+                .multilineTextAlignment(.center)
             Spacer()
             Button("Done") {
                 self.isPresented = false
             }
-            .foregroundColor(.green)
+            .foregroundColor(.white)
             .padding()
             .frame(maxWidth: .infinity)
-            .background(Color.white)
+            .background(Color.green)
             .cornerRadius(20)
         }
         .padding()
@@ -154,10 +157,11 @@ struct TradeSheetView: View {
         .opacity(showSuccessScreen ? 1 : 0)
         .animation(.easeIn(duration: 0.8), value: showSuccessScreen)
     }
+
     
     private func confirmTrade(isBuy: Bool) {
         guard let quantity = Int(quantityString), quantity > 0 else {
-            showLocalToast(message: "Please enter a valid number of shares.")
+            showLocalToast(message: "Please enter a valid amount")
             return
         }
         
@@ -168,11 +172,9 @@ struct TradeSheetView: View {
             }
         }
         
-        isLoading = true
         
         portfolioViewModel.buyStock(symbol: symbol, quantity: quantity, price: currentStockPrice) { result in
             DispatchQueue.main.async {
-                self.isLoading = false
                 switch result {
                 case .success:
                     self.showSuccessScreen = true
@@ -198,11 +200,12 @@ struct TradeSheetView: View {
                 VStack {
                     Spacer()
                     Text(toastMessage)
-                        .padding()
-                        .background(Color.black.opacity(0.75))
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .padding(.bottom, 50)
+                        .padding(30)
+                        .background(Color.gray)
+                        .foregroundColor(.white.opacity(0.60))
+                        .cornerRadius(50)
+                        .padding(.bottom, 30)
+                        .font(.title2)
                 }
             }
         }
@@ -211,10 +214,11 @@ struct TradeSheetView: View {
 
 struct TradeSheetView_Previews: PreviewProvider {
     @State static var isPresented = true
+    static let dummyStockDetailsModel = StockDetailsModel(symbol: "AAPL INC")
     static var previews: some View {
-        TradeSheetView(isPresented: $isPresented, symbol: "AAPL", tradeType: .buy)
-            .environmentObject(PortfolioViewModel())
-    }
+            TradeSheetView(isPresented: $isPresented, symbol: "AAPL", tradeType: .buy, stockDetailsModel: dummyStockDetailsModel)
+                .environmentObject(PortfolioViewModel())
+        }
 }
 
 
