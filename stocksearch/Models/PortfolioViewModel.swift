@@ -82,6 +82,7 @@ class PortfolioViewModel: ObservableObject {
                     switch response.result {
                     case .success(let quote):
                         stock.currentPrice = quote.currentPrice
+                        print("LATEST PRICE OF STOCK IN PORTFOLIO: \(stock.currentPrice)")
                         self.calculateNetWorth()
                     case .failure(let error):
                         print("Error fetching price for \(stock.symbol): \(error)")

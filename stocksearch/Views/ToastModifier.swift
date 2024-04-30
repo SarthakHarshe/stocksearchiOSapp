@@ -16,7 +16,7 @@ struct ToastModifier: ViewModifier {
             if toastManager.isShowing {
                 toastView(toastManager.message)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .animation(.easeInOut(duration: 0.5), value: toastManager.isShowing)
+                    .animation(.easeInOut(duration: 0.3), value: toastManager.isShowing)
             }
         }
     }

@@ -62,7 +62,7 @@ struct TradeSheetView: View {
     
     private func tradeFormView() -> some View {
         VStack {
-            Text("Trade \(stockDetailsModel.stockInfo?.name ?? "Unknown") shares")
+            Text("Trade \(stockDetailsModel.companyProfile?.name ?? "Unknown") shares")
                 .font(.title3)
             
             Spacer()
@@ -81,7 +81,7 @@ struct TradeSheetView: View {
                             Spacer()
                             Text(quantityString <= "1" ? "Share" : "Shares")
                         }.padding().font(.largeTitle)
-                        Text("x\(currentStockPrice, specifier: "%.2f")/share = \(calculatedCost, specifier: "%.2f")")
+                        Text("x\(currentStockPrice, specifier: "%.2f")/share = \(calculatedCost, specifier: "%.2f")").padding(.horizontal)
                     }.padding(.top, 60)
                     }
                 }
@@ -134,10 +134,10 @@ struct TradeSheetView: View {
     private func successView() -> some View {
         VStack {
             Spacer()
-            Text("Congratulations")
+            Text("Congratulations!")
                 .font(.title)
                 .foregroundColor(.white)
-            Text("You have successfully \(tradeType.rawValue.lowercased()) \(quantityString) shares of \(symbol).")
+            Text(successMessage)
                 .font(.subheadline)
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
@@ -145,11 +145,11 @@ struct TradeSheetView: View {
             Button("Done") {
                 self.isPresented = false
             }
-            .foregroundColor(.white)
+            .foregroundColor(.green)
             .padding()
             .frame(maxWidth: .infinity)
-            .background(Color.green)
-            .cornerRadius(20)
+            .background(Color.white)
+            .cornerRadius(30)
         }
         .padding()
         .background(Color.green)
@@ -158,33 +158,56 @@ struct TradeSheetView: View {
         .animation(.easeIn(duration: 0.8), value: showSuccessScreen)
     }
 
+
     
     private func confirmTrade(isBuy: Bool) {
-        guard let quantity = Int(quantityString), quantity > 0 else {
+        guard let quantity = Int(quantityString) else {
             showLocalToast(message: "Please enter a valid amount")
             return
         }
         
+        if quantity <= 0 {
+            let action = isBuy ? "buy" : "sell"
+            showLocalToast(message: "Cannot \(action) non-positive shares")
+            return
+        }
+
         if isBuy {
             if calculatedCost > availableBalance {
-                showLocalToast(message: "Insufficient funds to buy \(quantity) shares.")
+                showLocalToast(message: "Not enough money to buy")
                 return
             }
-        }
-        
-        
-        portfolioViewModel.buyStock(symbol: symbol, quantity: quantity, price: currentStockPrice) { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success:
-                    self.showSuccessScreen = true
-                    self.successMessage = "You have successfully bought \(quantity) shares of \(symbol)."
-                case .failure(let error):
-                    self.showLocalToast(message: error.localizedDescription)
+            portfolioViewModel.buyStock(symbol: symbol, quantity: quantity, price: currentStockPrice) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success:
+                        self.showSuccessScreen = true
+                        self.successMessage = "You have successfully bought \(quantity) \(quantity == 1 ? "share" : "shares") of \(symbol)."
+                    case .failure(let error):
+                        self.showLocalToast(message: error.localizedDescription)
+                    }
+                }
+            }
+        } else {
+            guard let stock = portfolioViewModel.stocks.first(where: { $0.symbol == symbol }), stock.quantity >= quantity else {
+                showLocalToast(message: "Not enough shares to sell")
+                return
+            }
+            portfolioViewModel.sellStock(symbol: symbol, quantity: quantity, price: currentStockPrice) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success:
+                        self.showSuccessScreen = true
+                        self.successMessage = "You have successfully sold \(quantity) \(quantity == 1 ? "share" : "shares") of \(symbol)."
+                    case .failure(let error):
+                        self.showLocalToast(message: error.localizedDescription)
+                    }
                 }
             }
         }
     }
+
+
     
     private func showLocalToast(message: String) {
         toastMessage = message

@@ -13,7 +13,7 @@ struct StockDetailsView: View {
     let symbol: String
     @ObservedObject var stockService: StockDetailsModel
     @StateObject private var portfolioViewModel = PortfolioViewModel()
-
+    
     // State for managing sheet presentation
     @State private var showingTradeSheet = false
     @State private var tradeType: TradeType = .buy
@@ -24,7 +24,7 @@ struct StockDetailsView: View {
         ScrollView {
             VStack {
                 if stockService.isDataLoaded == false {
-                        Spacer()
+                    Spacer()
                     ProgressView("Fetching Data...").padding(.top, 300)
                 } else if let stockInfo = stockService.stockInfo, let companyProfile = stockService.companyProfile, stockService.isDataLoaded {
                     stockDetailsContent(stockInfo: stockInfo, companyProfile: companyProfile)
@@ -33,8 +33,8 @@ struct StockDetailsView: View {
                 }
             }
             .padding()
-            .navigationTitle(symbol)
-            .navigationBarItems(trailing: favoriteButton)
+            .navigationBarTitle(stockService.isDataLoaded ? symbol : "", displayMode: .inline)
+            .navigationBarItems(trailing: stockService.isDataLoaded ? favoriteButton : nil)
             .onAppear {
                 stockService.fetchDataIfNeeded()
             }
@@ -51,7 +51,7 @@ struct StockDetailsView: View {
             alignment: .top
         )
     }
-
+    
     private func stockDetailsContent(stockInfo: StockInfo, companyProfile: CompanyProfile) -> some View {
         VStack(alignment: .leading) {
             companyHeader(companyProfile: companyProfile)
@@ -65,7 +65,7 @@ struct StockDetailsView: View {
             latestNewsSection()
         }
     }
-
+    
     private func companyHeader(companyProfile: CompanyProfile) -> some View {
         VStack(alignment: .leading) {
             HStack {
@@ -85,7 +85,7 @@ struct StockDetailsView: View {
         }
         .padding(.horizontal)
     }
-
+    
     private func stockInformation(stockInfo: StockInfo) -> some View {
         HStack(alignment: .firstTextBaseline) {
             Text("$\(stockInfo.currentPrice, specifier: "%.2f")")
@@ -107,22 +107,22 @@ struct StockDetailsView: View {
     
     private func financialChartsSection() -> some View {
         TabView {
-                                    HighchartsView(stockService: stockService, htmlName: "ChartViewa", symbol: symbol, chartType: .hourly)
-                                        .tabItem {
-                                            Image(systemName: "chart.xyaxis.line")
-                                            Text("Hourly")
-                                        }
-                                    
-                                    HighchartsView(stockService: stockService, htmlName: "ChartView", symbol: symbol, chartType: .historical)
-                                        .tabItem {
-                                            Image(systemName: "clock")
-                                            Text("Historical")
-                                        }
-                                    
-                                }
-                                .frame(width: 400, height: 400)
+            HighchartsView(stockService: stockService, htmlName: "ChartViewa", symbol: symbol, chartType: .hourly)
+                .tabItem {
+                    Image(systemName: "chart.xyaxis.line")
+                    Text("Hourly")
+                }
+            
+            HighchartsView(stockService: stockService, htmlName: "ChartView", symbol: symbol, chartType: .historical)
+                .tabItem {
+                    Image(systemName: "clock")
+                    Text("Historical")
+                }
+            
+        }
+        .frame(width: 400, height: 400)
     }
-
+    
     private func portfolioSection() -> some View {
         VStack(alignment: .leading) {
             if let stock = portfolioViewModel.stocks.first(where: { $0.symbol == self.symbol }) {
@@ -144,13 +144,12 @@ struct StockDetailsView: View {
                             HStack(spacing: 2) {
                                 Text("Change:")
                                 Text("$\(change > 0 ? "+" : "")\(change, specifier: "%.2f")")
-                                    .foregroundColor(change > 0 ? .green : .red)
+                                    .foregroundColor(change > 0 ? .green : (change < 0 ? .red : .black))
                             }
                             HStack(spacing: 2) {
                                 Text("Market Value:")
                                 Text("$\(stock.currentPrice * Double(stock.quantity), specifier: "%.2f")")
-                                    .foregroundColor(change > 0 ? .green : .red)
-                            }
+                                .foregroundColor(change > 0 ? .green : (change < 0 ? .red : .black))                            }
                         }
                         Spacer()
                         Button(action: {
@@ -193,7 +192,7 @@ struct StockDetailsView: View {
             }
         }
     }
-
+    
     private func statsSection(stockInfo: StockInfo) -> some View {
         VStack(alignment: .leading) {
             VStack {
@@ -224,7 +223,7 @@ struct StockDetailsView: View {
         }
         .padding()
     }
-
+    
     private func aboutSection(companyProfile: CompanyProfile) -> some View {
         VStack(alignment: .leading) {
             HStack {
@@ -234,15 +233,15 @@ struct StockDetailsView: View {
                     Text("Webpage:")
                     Text("Company Peers:")
                 }
-
+                
                 Spacer(minLength: 50)  // Ensures some spacing even when links are present
-
+                
                 VStack(alignment: .leading) {
                     Text("\(companyProfile.ipo)")
                     Text("\(companyProfile.industry)")
                     Link(companyProfile.webpage, destination: URL(string: companyProfile.webpage)!)
                         .foregroundColor(.blue)
-
+                    
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 7) {
                             ForEach(stockService.companyPeers.filter { !$0.contains(".") }, id: \.self) { peer in
@@ -255,13 +254,13 @@ struct StockDetailsView: View {
                         }
                     }
                 }
-
+                
                 Spacer()
             }
         }
         .padding()
     }
-
+    
     private func insightsSection() -> some View {
         VStack(alignment: .leading, spacing: 10) {
             VStack {
@@ -274,9 +273,9 @@ struct StockDetailsView: View {
             VStack {
                 Text("Insights")
                     .font(.title2)
-                .frame(maxWidth: .infinity, alignment: .center)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
-
+            
             if let sentimentData = stockService.insiderSentiments?.data {
                 HStack {
                     VStack(alignment: .leading, spacing: 20) {
@@ -332,7 +331,7 @@ struct StockDetailsView: View {
         .frame(maxWidth: .infinity)
         .padding()
     }
-
+    
     private func chartSections() -> some View {
         VStack {
             HighchartsView(stockService: stockService, htmlName: "ChartView", symbol: symbol, chartType: .recommendationTrends)
@@ -344,13 +343,13 @@ struct StockDetailsView: View {
                 .padding(.horizontal)
         }
     }
-
+    
     private func latestNewsSection() -> some View {
         VStack(alignment: .leading) {
-            Text("Latest News")
+            Text("News")
                 .font(.title2)
                 .padding(.top)
-
+            
             ForEach(Array(stockService.latestNews.enumerated()), id: \.element.id) { (index, article) in
                 NewsView(article: article, isFirstArticle: index == 0)
                     .padding(.vertical)
@@ -358,14 +357,14 @@ struct StockDetailsView: View {
         }
         .padding(.horizontal)
     }
-
+    
     private var favoriteButton: some View {
         Button(action: toggleFavorite) {
             Image(systemName: stockService.isFavorite ? "plus.circle.fill" : "plus.circle")
                 .foregroundColor(.blue)
         }
     }
-
+    
     private func toggleFavorite() {
         if stockService.isFavorite {
             stockService.removeFromFavorites { success, message in
@@ -385,7 +384,7 @@ struct StockDetailsView: View {
             }
         }
     }
-
+    
     private func handleToast(success: Bool, message: String) {
         toastMessage = message
         showToast = true
@@ -393,7 +392,7 @@ struct StockDetailsView: View {
             showToast = false
         }
     }
-
+    
     private var toastOverlay: some View {
         Group {
             if showToast {
@@ -410,7 +409,7 @@ struct StockDetailsView: View {
             }
         }
     }
-
+    
     private func formatNumber(_ number: Double) -> String {
         let formatter = NumberFormatter()
         formatter.maximumIntegerDigits = 3
