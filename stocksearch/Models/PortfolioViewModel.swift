@@ -22,9 +22,9 @@ class PortfolioViewModel: ObservableObject {
     
 
     // URLs for the backend endpoints
-    private let portfolioURL = "http://localhost:3000/portfolio"
-    private let quoteURL = "http://localhost:3000/stock_quote"
-    private let userDataURL = "http://localhost:3000/userdata"
+    private let portfolioURL = "https://assignment3-419001.wl.r.appspot.com/portfolio"
+    private let quoteURL = "https://assignmenst3-419001.wl.r.appspot.com/stock_quote"
+    private let userDataURL = "https://assignment3-419001.wl.r.appspot.com/userdata"
 
     // Initialize to fetch data
     init() {
@@ -61,6 +61,7 @@ class PortfolioViewModel: ObservableObject {
                     case .success(let stocks):
                         self.stocks = stocks
                         self.updateStockPrices()
+                        self.isDataLoadedforportfolio = true
                     case .failure(let error):
                         self.errorMessage = "Failed to load portfolio: \(error.localizedDescription)"
                     }
@@ -77,14 +78,13 @@ class PortfolioViewModel: ObservableObject {
 
     // Fetch the latest price for a given stock
     func fetchLatestPrice(for stock: Stock) {
-        AF.request("\(quoteURL)?symbol=\(stock.symbol)", method: .get)
+        AF.request("https://assignment3-419001.wl.r.appspot.com/stock_quote?symbol=\(stock.symbol)", method: .get)
             .validate()
             .responseDecodable(of: StockQuote.self) { response in
                 DispatchQueue.main.async {
                     switch response.result {
                     case .success(let quote):
                         stock.currentPrice = quote.currentPrice
-                        self.isDataLoadedforportfolio = true
                         self.calculateNetWorth()
                     case .failure(let error):
                         print("Error fetching price for \(stock.symbol): \(error)")
@@ -123,7 +123,7 @@ class PortfolioViewModel: ObservableObject {
         }
     
     func buyStock(symbol: String, quantity: Int, price: Double, completion: @escaping (Result<String, Error>) -> Void) {
-        let buyURL = "http://localhost:3000/portfolio/buy"
+        let buyURL = "https://assignment3-419001.wl.r.appspot.com/portfolio/buy"
         let request = BuyStockRequest(symbol: symbol, quantity: quantity, price: price)
 
         AF.request(buyURL, method: .post, parameters: request, encoder: JSONParameterEncoder.default)
@@ -142,7 +142,7 @@ class PortfolioViewModel: ObservableObject {
     }
     
     func sellStock(symbol: String, quantity: Int, price: Double, completion: @escaping (Result<String, Error>) -> Void) {
-        let sellURL = "http://localhost:3000/portfolio/sell"
+        let sellURL = "https://assignment3-419001.wl.r.appspot.com/portfolio/sell"
         let request = SellStockRequest(symbol: symbol, quantity: quantity, price: price)
 
         AF.request(sellURL, method: .post, parameters: request, encoder: JSONParameterEncoder.default)
@@ -162,7 +162,7 @@ class PortfolioViewModel: ObservableObject {
 
     
     func updateWalletBalance(newBalance: Double, completion: @escaping (Result<String, Error>) -> Void) {
-        let updateWalletURL = "http://localhost:3000/userdata/update-wallet"
+        let updateWalletURL = "https://assignment3-419001.wl.r.appspot.com/userdata/update-wallet"
         let request = UpdateWalletRequest(newBalance: newBalance)
 
         AF.request(updateWalletURL, method: .post, parameters: request, encoder: JSONParameterEncoder.default)
@@ -181,7 +181,7 @@ class PortfolioViewModel: ObservableObject {
     func deleteStock(at offsets: IndexSet) {
         offsets.forEach { index in
             let stock = stocks[index]
-            AF.request("http://localhost:3000/portfolio/\(stock.symbol)", method: .delete)
+            AF.request("https://assignment3-419001.wl.r.appspot.com/portfolio/\(stock.symbol)", method: .delete)
                 .validate()
                 .response { response in
                     DispatchQueue.main.async {

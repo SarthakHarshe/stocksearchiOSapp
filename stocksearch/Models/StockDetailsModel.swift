@@ -155,9 +155,9 @@ class StockDetailsModel: ObservableObject {
 
 
     
-    private let quoteURL = "http://localhost:3000/stock_quote"
-    private let profileURL = "http://localhost:3000/company_profile"
-    private let watchlistURL = "http://localhost:3000/watchlist"
+    private let quoteURL = "https://assignment3-419001.wl.r.appspot.com/stock_quote"
+    private let profileURL = "https://assignment3-419001.wl.r.appspot.com/company_profile"
+    private let watchlistURL = "https://assignment3-419001.wl.r.appspot.com/watchlist"
     
     
     init(symbol: String) {
@@ -333,7 +333,7 @@ class StockDetailsModel: ObservableObject {
 
     
     private func fetchStockDetails(completion: @escaping () -> Void) {
-            AF.request("\(quoteURL)?symbol=\(symbol)", method: .get).validate().responseDecodable(of: StockInfo.self) { response in
+            AF.request("https://assignment3-419001.wl.r.appspot.com/stock_quote?symbol=\(symbol)", method: .get).validate().responseDecodable(of: StockInfo.self) { response in
                 switch response.result {
                 case .success(let stockInfo):
                     DispatchQueue.main.async {
@@ -348,7 +348,7 @@ class StockDetailsModel: ObservableObject {
         }
     
     private func fetchCompanyProfile(completion: @escaping () -> Void) {
-            AF.request("\(profileURL)?symbol=\(symbol)", method: .get).validate().responseDecodable(of: CompanyProfile.self) { response in
+            AF.request("https://assignment3-419001.wl.r.appspot.com/company_profile?symbol=\(symbol)", method: .get).validate().responseDecodable(of: CompanyProfile.self) { response in
                 switch response.result {
                 case .success(let profile):
                     DispatchQueue.main.async {
@@ -363,7 +363,7 @@ class StockDetailsModel: ObservableObject {
         }
     
     func fetchHourlyChartData(symbol: String, completion: @escaping (Result<[ChartData], Error>) -> Void) {
-        let urlString = "http://localhost:3000/hourly_charts_data?symbol=\(symbol)"
+        let urlString = "https://assignment3-419001.wl.r.appspot.com/hourly_charts_data?symbol=\(symbol)"
         AF.request(urlString).responseDecodable(of: HourlyChartDataResponse.self) { response in
             switch response.result {
             case .success(let dataResponse):
@@ -376,7 +376,7 @@ class StockDetailsModel: ObservableObject {
     }
     
     func fetchHistoricalChartData(symbol: String, completion: @escaping (Result<[HistoricalChartData], Error>) -> Void) {
-        let urlString = "http://localhost:3000/charts_data?symbol=\(symbol)"
+        let urlString = "https://assignment3-419001.wl.r.appspot.com/charts_data?symbol=\(symbol)"
         AF.request(urlString).responseDecodable(of: HistoricalChartDataResponse.self) { response in
             switch response.result {
             case .success(let dataResponse):
@@ -388,7 +388,7 @@ class StockDetailsModel: ObservableObject {
     }
     
     func fetchCompanyPeers(completion: @escaping () -> Void) {
-            let peersURL = "http://localhost:3000/company_peers?symbol=\(symbol)"
+            let peersURL = "https://assignment3-419001.wl.r.appspot.com/company_peers?symbol=\(symbol)"
             AF.request(peersURL).responseDecodable(of: [String].self) { response in
                 DispatchQueue.main.async {
                     switch response.result {
@@ -403,7 +403,7 @@ class StockDetailsModel: ObservableObject {
         }
     
     func fetchInsiderSentiments(completion: @escaping () -> Void) {
-        let sentimentURL = "http://localhost:3000/insider_sentiment?symbol=\(symbol)"
+        let sentimentURL = "https://assignment3-419001.wl.r.appspot.com/insider_sentiment?symbol=\(symbol)"
         AF.request(sentimentURL).responseDecodable(of: InsiderSentiment.self) { response in
             DispatchQueue.main.async {
                 switch response.result {
@@ -418,7 +418,7 @@ class StockDetailsModel: ObservableObject {
     }
     
     func fetchRecommendationTrends(symbol: String, completion: @escaping (Result<[RecommendationTrend], Error>) -> Void) {
-        AF.request("http://localhost:3000/recommendation_trends?symbol=\(symbol)").responseDecodable(of: [RecommendationTrend].self) { response in
+        AF.request("https://assignment3-419001.wl.r.appspot.com/recommendation_trends?symbol=\(symbol)").responseDecodable(of: [RecommendationTrend].self) { response in
             switch response.result {
             case .success(let trends):
                 completion(.success(trends))
@@ -429,7 +429,7 @@ class StockDetailsModel: ObservableObject {
     }
     
     func fetchHistoricalEPS(symbol: String, completion: @escaping (Result<[HistoricalEPS], Error>) -> Void) {
-        AF.request("http://localhost:3000/company_earnings?symbol=\(symbol)").responseDecodable(of: [HistoricalEPS].self) { response in
+        AF.request("https://assignment3-419001.wl.r.appspot.com/company_earnings?symbol=\(symbol)").responseDecodable(of: [HistoricalEPS].self) { response in
             switch response.result {
             case .success(let earnings):
                 completion(.success(earnings))
@@ -440,7 +440,7 @@ class StockDetailsModel: ObservableObject {
     }
 
     func fetchLatestNews(completion: @escaping () -> Void) {
-        let newsURL = "http://localhost:3000/latest_news?symbol=\(symbol)"
+        let newsURL = "https://assignment3-419001.wl.r.appspot.com/latest_news?symbol=\(symbol)"
         AF.request(newsURL).responseDecodable(of: [NewsArticle].self) { response in
             DispatchQueue.main.async {
                 switch response.result {

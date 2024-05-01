@@ -13,12 +13,16 @@ struct StockDetailsView: View {
     let symbol: String
     @ObservedObject var stockService: StockDetailsModel
     @StateObject private var portfolioViewModel = PortfolioViewModel()
+    @Environment(\.presentationMode) var presentationMode
+
     
     // State for managing sheet presentation
     @State private var showingTradeSheet = false
     @State private var tradeType: TradeType = .buy
     @State private var toastMessage: String?
     @State private var showToast = false
+    @State private var shouldNavigateBack = false  // State to handle navigation
+
     
     var body: some View {
         ScrollView {
@@ -39,8 +43,13 @@ struct StockDetailsView: View {
                 stockService.fetchDataIfNeeded()
             }
             .sheet(isPresented: $showingTradeSheet) {
-                TradeSheetView(isPresented: self.$showingTradeSheet, symbol: symbol, tradeType: self.tradeType, stockDetailsModel: stockService)
+                TradeSheetView(isPresented: $showingTradeSheet, shouldDismissParent: $shouldNavigateBack, symbol: symbol, tradeType: self.tradeType, stockDetailsModel: stockService)
                     .environmentObject(portfolioViewModel)
+            }
+            .onChange(of: shouldNavigateBack) { oldValue, newValue in
+                if newValue {
+                    self.presentationMode.wrappedValue.dismiss()
+                }
             }
         }
         .overlay(

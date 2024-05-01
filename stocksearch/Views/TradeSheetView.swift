@@ -20,9 +20,12 @@ struct AlertMessage: Identifiable {
 struct TradeSheetView: View {
     @EnvironmentObject var portfolioViewModel: PortfolioViewModel
     @Binding var isPresented: Bool
+    @Binding var shouldDismissParent: Bool
     let symbol: String
     let tradeType: TradeType
     let stockDetailsModel: StockDetailsModel
+    
+
     
     @State private var quantityString = ""
     @State private var showSuccessScreen = false
@@ -50,12 +53,12 @@ struct TradeSheetView: View {
                     successView()
                 } else {
                     tradeFormView()
+                        .navigationBarItems(trailing: Button(action: { isPresented = false }) {
+                                        Image(systemName: "xmark")
+                                            .foregroundColor(.black)
+                                    })
                 }
             }
-            .navigationBarItems(trailing: Button(action: { isPresented = false }) {
-                            Image(systemName: "xmark")
-                                .foregroundColor(.black)
-                        })
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -199,6 +202,9 @@ struct TradeSheetView: View {
                     case .success:
                         self.showSuccessScreen = true
                         self.successMessage = "You have successfully sold \(quantity) \(quantity == 1 ? "share" : "shares") of \(symbol)."
+                        if stock.quantity == quantity { // Check if all shares sold
+                                        self.shouldDismissParent = true  // Set the flag to true
+                                    }
                     case .failure(let error):
                         self.showLocalToast(message: error.localizedDescription)
                     }
@@ -206,6 +212,7 @@ struct TradeSheetView: View {
             }
         }
     }
+    
 
 
     
@@ -237,11 +244,14 @@ struct TradeSheetView: View {
 
 struct TradeSheetView_Previews: PreviewProvider {
     @State static var isPresented = true
+    @State static var shouldDismissParent = false // Add this line
     static let dummyStockDetailsModel = StockDetailsModel(symbol: "AAPL INC")
+    
     static var previews: some View {
-            TradeSheetView(isPresented: $isPresented, symbol: "AAPL", tradeType: .buy, stockDetailsModel: dummyStockDetailsModel)
-                .environmentObject(PortfolioViewModel())
-        }
+        TradeSheetView(isPresented: $isPresented, shouldDismissParent: $shouldDismissParent, symbol: "AAPL", tradeType: .buy, stockDetailsModel: dummyStockDetailsModel)
+            .environmentObject(PortfolioViewModel())
+    }
 }
+
 
 

@@ -13,8 +13,8 @@ import SwiftUI
 
 class FavoritesViewModel: ObservableObject {
     @Published var favorites: [FavoriteStock] = []
-    private let favoritesURL = "http://localhost:3000/watchlist"
-    private let quoteURL = "http://localhost:3000/stock_quote"
+    private let favoritesURL = "https://assignment3-419001.wl.r.appspot.com/watchlist"
+    private let quoteURL = "https://assignment3-419001.wl.r.appspot.com/stock_quote"
     var timer: AnyCancellable?
     @Published var isLoading = false
     @Published var isDataLoadedforfavorites = false
@@ -38,6 +38,7 @@ class FavoritesViewModel: ObservableObject {
                     case .success(let fetchedFavorites):
                         self.favorites = fetchedFavorites
                         self.updateFavoriteStockPrices()
+                        self.isDataLoadedforfavorites = true
                     case .failure(let error):
                         print("Error fetching favorites: \(error.localizedDescription)")
                     }
@@ -47,7 +48,7 @@ class FavoritesViewModel: ObservableObject {
     
     func updateFavoriteStockPrices() {
         for favorite in favorites {
-            AF.request("\(quoteURL)?symbol=\(favorite.symbol)", method: .get)
+            AF.request("https://assignment3-419001.wl.r.appspot.com/stock_quote?symbol=\(favorite.symbol)", method: .get)
                 .validate()
                 .responseDecodable(of: DetailedStockQuote.self) { [weak self] response in
                     DispatchQueue.main.async {
@@ -58,7 +59,6 @@ class FavoritesViewModel: ObservableObject {
                                 self?.favorites[index].change = quote.change
                                 self?.favorites[index].changePercentage = quote.changePercentage
                             }
-                            self?.isDataLoadedforfavorites = true
                         case .failure(let error):
                             print("Error fetching stock quote for \(favorite.symbol): \(error)")
                         }
@@ -84,7 +84,7 @@ class FavoritesViewModel: ObservableObject {
     func deleteFavorite(at offsets: IndexSet, completion: @escaping (Bool, String) -> Void) {
             for index in offsets {
                 let favorite = favorites[index]
-                AF.request("http://localhost:3000/watchlist/\(favorite.symbol)", method: .delete)
+                AF.request("https://assignment3-419001.wl.r.appspot.com/watchlist/\(favorite.symbol)", method: .delete)
                     .validate()
                     .response { response in
                         DispatchQueue.main.async {

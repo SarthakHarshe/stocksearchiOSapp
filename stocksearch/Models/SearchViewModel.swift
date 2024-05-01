@@ -43,7 +43,7 @@ class SearchViewModel: ObservableObject {
     }
 
     func fetchSuggestions(query: String) {
-        let urlString = "http://localhost:3000/autocomplete?q=\(query)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let urlString = "https://assignment3-419001.wl.r.appspot.com/autocomplete?q=\(query)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         guard let url = URL(string: urlString) else {
             self.searchResults = []
             return

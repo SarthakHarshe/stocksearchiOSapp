@@ -86,68 +86,71 @@ struct HighchartsView: UIViewRepresentable {
                 let lineColor = (self.stockService.stockInfo?.change ?? 0) >= 0 ? "green" : "red"
 
                 let jsChartOptions = """
-                    {
-                        chart: {
-                            type: 'line',
-                            style: {
-                                fontFamily: 'Arial',
-                            },
-                            height: '85%'
-                        },
-                        title: {
-                            text: 'Hourly Price Variation',
-                            style: {
-                                color: 'black',
-                                fontSize: '16px',
-                            },
-                        },
-                        xAxis: {
-                            type: 'datetime',
-                             tickInterval: 14400 * 1000,
-                            crosshair: {
-                                              width: 1,
-                                              color: 'lightgray',
-                                              dashStyle: 'Solid'
-                                            }
-                        },
-                        yAxis: {
-                            title: {
-                                text: '',
-                            },
-                            opposite: true,
-                            tickAmount: 4,
-                        },
-                        tooltip: {
-                            split: true,
-                            crosshairs: true
-                        },
-                        legend: {
-                        enabled: false
-                        }
-                        series: [{
-                            name: 'Price',
-                            data: \(formattedSeriesData),
-                            type: 'line',
-                            color: '\(lineColor)',
-                            marker: {
-                                enabled: false,
-                            },
-                        }],
-                        credits: {
-                            enabled: true,
-                            href: 'http://www.highcharts.com',
-                            text: 'highcharts.com',
-                        },
-                        plotOptions: {
-                            series: {
-                                marker: {
-                                    enabled: true,
-                                    radius: 3,
-                                },
-                            },
-                        },
-                    }
-                    """
+                                    {
+                                        chart: {
+                                            type: 'line',
+                                            style: {
+                                                fontFamily: 'Arial',
+                                            },
+                                            height: '85%'
+                                        },
+                                        title: {
+                                            text: '\(symbol) Hourly Price Variation',
+                                            style: {
+                                                color: 'black',
+                                                fontSize: '16px',
+                                            },
+                                        },
+                                        xAxis: {
+                                            type: 'datetime',
+                                            dateTimeLabelFormats: {
+                                                hour: '%H:%M',
+                                            },
+                                            labels: {
+                                              format: '{value:%H:%M}',
+                                            },
+                                            crosshair: {
+                                                              width: 1,
+                                                              color: 'lightgray',
+                                                              dashStyle: 'Solid'
+                                                            },
+                                             tickInterval: 14400 * 1000,
+                                        },
+                                        yAxis: {
+                                            title: {
+                                                text: '',
+                                            },
+                                            opposite: true,
+                                            tickAmount: 4,
+                                        },
+                                        series: [{
+                                            name: '\(symbol)',
+                                            data: \(formattedSeriesData),
+                                            type: 'line',
+                                            color: '\(lineColor)',
+                                            marker: {
+                                                enabled: false,
+                                            },
+                                        }],
+                                        credits: {
+                                            enabled: true,
+                                            href: 'http://www.highcharts.com',
+                                            text: 'highcharts.com',
+                                        },
+                                        tooltip: {
+                                            split: true,
+                                            crosshairs: true,
+                                        },
+                                        plotOptions: {
+                                            series: {
+                                                marker: {
+                                                    enabled: true,
+                                                    radius: 3,
+                                                },
+                                            },
+                                        },
+                                    }
+                                    """
                 print("Hourly Chart options: \(jsChartOptions)")
                 let jsCode = "updateHourlyChart(\(jsChartOptions))"
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
