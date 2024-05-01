@@ -103,7 +103,12 @@ struct HighchartsView: UIViewRepresentable {
                         },
                         xAxis: {
                             type: 'datetime',
-                             tickInterval: 14400 * 1000
+                             tickInterval: 14400 * 1000,
+                            crosshair: {
+                                              width: 1,
+                                              color: 'lightgray',
+                                              dashStyle: 'Solid'
+                                            }
                         },
                         yAxis: {
                             title: {
@@ -113,7 +118,8 @@ struct HighchartsView: UIViewRepresentable {
                             tickAmount: 4,
                         },
                         tooltip: {
-                            split: true
+                            split: true,
+                            crosshairs: true
                         },
                         legend: {
                         enabled: false
@@ -142,6 +148,7 @@ struct HighchartsView: UIViewRepresentable {
                         },
                     }
                     """
+                print("Hourly Chart options: \(jsChartOptions)")
                 let jsCode = "updateHourlyChart(\(jsChartOptions))"
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     webView.evaluateJavaScript(jsCode) { (result, error) in
@@ -224,19 +231,6 @@ struct HighchartsView: UIViewRepresentable {
                         tooltip: {
                                 split: true
                             },
-                        plotOptions: {
-                                series: {
-                                  dataGrouping: {
-                                    units: [
-                                      [
-                                        'week',
-                                        [2],
-                                      ],
-                                      ['month', [1, 2, 3, 4, 6]],
-                                    ],
-                                  },
-                                },
-                              },
                     series: [{
                         type: 'candlestick',
                         name: '\(self.symbol)',
@@ -339,7 +333,7 @@ struct HighchartsView: UIViewRepresentable {
                     yAxis: {
                         min: 0,
                         title: {
-                            text: 'Number of Recommendations'
+                            text: '#Analysis'
                         },
                         tickAmount: 4
                     },
@@ -348,7 +342,7 @@ struct HighchartsView: UIViewRepresentable {
                     },
                     tooltip: {
                         headerFormat: '{point.x}<br/>',
-                        pointFormat: '{series.name}: {point.y}'
+                        pointFormat: '<span style="color:{series.color}">\u{25CF}</span> {series.name}: <b>{point.y}</b>'
                     },
                     plotOptions: {
                         column: {
@@ -395,13 +389,11 @@ struct HighchartsView: UIViewRepresentable {
                     },
                     xAxis: {
                         categories: [\(categories)],
-                        tickAmount: 4
                     },
                     yAxis: {
                         title: {
                             text: 'Quarterly EPS'
                         },
-                                tickAmount: 4
                     },
                     tooltip: {
                         crosshairs: true,

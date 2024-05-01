@@ -92,7 +92,7 @@ struct InsiderSentiment: Decodable {
         let symbol: String
         let year: Int
         let month: Int
-        let change: Double
+        let change: Int
         let mspr: Double
     }
 }
@@ -128,11 +128,11 @@ struct NewsArticle: Identifiable, Decodable {
 
 extension Array where Element == InsiderSentiment.SentimentData {
     var totalMSPR: Double { reduce(0) { $0 + $1.mspr } }
-    var totalChange: Double { reduce(0) { $0 + $1.change } }
+    var totalChange: Int { reduce(0) { $0 + $1.change } }
     var positiveMSPR: Double { filter { $0.mspr > 0 }.reduce(0) { $0 + $1.mspr } }
     var negativeMSPR: Double { filter { $0.mspr < 0 }.reduce(0) { $0 + $1.mspr } }
-    var positiveChange: Double { filter { $0.change > 0 }.reduce(0) { $0 + $1.change } }
-    var negativeChange: Double { filter { $0.change < 0 }.reduce(0) { $0 + $1.change } }
+    var positiveChange: Int { filter { $0.change > 0 }.reduce(0) { $0 + $1.change } }
+    var negativeChange: Int { filter { $0.change < 0 }.reduce(0) { $0 + $1.change } }
 }
 
 
@@ -152,11 +152,8 @@ class StockDetailsModel: ObservableObject {
     @Published var recommendationTrends: [RecommendationTrend] = []
     @Published var historicalEPS: [HistoricalEPS] = []
     @Published var isDataLoaded = false
-//    @Published var isChartReady = false
 
 
-
-    
     
     private let quoteURL = "http://localhost:3000/stock_quote"
     private let profileURL = "http://localhost:3000/company_profile"

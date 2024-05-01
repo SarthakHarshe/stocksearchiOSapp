@@ -16,6 +16,8 @@ class PortfolioViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     var timer: AnyCancellable?
+    @Published var isDataLoadedforportfolio = false
+
     
     
 
@@ -28,6 +30,7 @@ class PortfolioViewModel: ObservableObject {
     init() {
         fetchUserData()
         fetchPortfolio()
+        self.isDataLoadedforportfolio = false
     }
 
     // Fetch user data to get the wallet balance
@@ -57,7 +60,6 @@ class PortfolioViewModel: ObservableObject {
                     switch response.result {
                     case .success(let stocks):
                         self.stocks = stocks
-                        self.isLoading = false
                         self.updateStockPrices()
                     case .failure(let error):
                         self.errorMessage = "Failed to load portfolio: \(error.localizedDescription)"
@@ -82,7 +84,7 @@ class PortfolioViewModel: ObservableObject {
                     switch response.result {
                     case .success(let quote):
                         stock.currentPrice = quote.currentPrice
-                        print("LATEST PRICE OF STOCK IN PORTFOLIO: \(stock.currentPrice)")
+                        self.isDataLoadedforportfolio = true
                         self.calculateNetWorth()
                     case .failure(let error):
                         print("Error fetching price for \(stock.symbol): \(error)")

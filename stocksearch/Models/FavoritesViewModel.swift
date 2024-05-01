@@ -17,10 +17,13 @@ class FavoritesViewModel: ObservableObject {
     private let quoteURL = "http://localhost:3000/stock_quote"
     var timer: AnyCancellable?
     @Published var isLoading = false
+    @Published var isDataLoadedforfavorites = false
+    
     
     init() {
         fetchFavorites()
         updateFavoriteStockPrices()
+        self.isDataLoadedforfavorites = false
 //        startUpdatingFavorites()
     }
 
@@ -55,6 +58,7 @@ class FavoritesViewModel: ObservableObject {
                                 self?.favorites[index].change = quote.change
                                 self?.favorites[index].changePercentage = quote.changePercentage
                             }
+                            self?.isDataLoadedforfavorites = true
                         case .failure(let error):
                             print("Error fetching stock quote for \(favorite.symbol): \(error)")
                         }

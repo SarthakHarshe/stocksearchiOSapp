@@ -70,7 +70,7 @@ struct StockDetailsView: View {
         VStack(alignment: .leading) {
             HStack {
                 Text(companyProfile.name)
-                    .font(.subheadline)
+                    .font(.headline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 if let imageUrl = URL(string: companyProfile.logo), !companyProfile.logo.isEmpty {
@@ -137,24 +137,24 @@ struct StockDetailsView: View {
                 VStack(alignment: .leading, spacing: 5) {
                     HStack {
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Shares Owned: ").fontWeight(.bold).font(.system(size: 15)) +
+                            Text("Shares Owned:   ").fontWeight(.bold).font(.system(size: 15)) +
                             Text("\(stock.quantity)").font(.system(size: 15))
                             
-                            Text("Avg. Cost / Share: ").fontWeight(.bold).font(.system(size: 15)) +
+                            Text("Avg. Cost / Share:   ").fontWeight(.bold).font(.system(size: 15)) +
                             Text("$\(stock.averageCost, specifier: "%.2f")").font(.system(size: 15))
                             
-                            Text("Total Cost: ").fontWeight(.bold).font(.system(size: 15)) +
+                            Text("Total Cost:   ").fontWeight(.bold).font(.system(size: 15)) +
                             Text("$\(stock.totalCost, specifier: "%.2f")").font(.system(size: 15))
                             
                             let change = (stock.currentPrice * Double(stock.quantity)) - stock.totalCost
                             HStack(spacing: 2) {
-                                Text("Change:").fontWeight(.bold).font(.system(size: 15)) +
+                                Text("Change:  ").fontWeight(.bold).font(.system(size: 15)) +
                                 Text("$\(change > 0 ? "+" : "")\(change, specifier: "%.2f")").font(.system(size: 15))
                                     .foregroundColor(change > 0 ? .green : (change < 0 ? .red : .black))
                             }
                             
                             HStack(spacing: 2) {
-                                Text("Market Value:").fontWeight(.bold).font(.system(size: 15)) +
+                                Text("Market Value:  ").fontWeight(.bold).font(.system(size: 15)) +
                                 Text("$\(stock.currentPrice * Double(stock.quantity), specifier: "%.2f")").font(.system(size: 15))
                                     .foregroundColor(change > 0 ? .green : (change < 0 ? .red : .black))
                             }
@@ -219,25 +219,23 @@ struct StockDetailsView: View {
                     
                 }
             }
+            .padding()
             
             VStack(alignment: .leading) {
                 HStack {
-                    VStack(alignment: .leading) {
+                    VStack(alignment: .leading, spacing: 14) {
                         Text("High Price: ").bold() + Text("\(stockInfo.high, specifier: "%.2f")")
                         Text("Low Price: ").bold() + Text("\(stockInfo.low, specifier: "%.2f")")
-                    }
-                    Spacer()
-                    VStack(alignment: .leading) {
+                    }.padding(.horizontal)
+                    VStack(alignment: .leading, spacing: 14) {
                         Text("Open Price: ").bold() + Text("\(stockInfo.open, specifier: "%.2f")")
                         Text("Prev. Close: ").bold() + Text("\(stockInfo.previousClose, specifier: "%.2f")")
-                    }
+                    }.padding(.horizontal)
                     Spacer()
                 }
             }
-            .padding()
             .font(.system(size: 15))
         }
-        .padding()
     }
     
     private func aboutSection(companyProfile: CompanyProfile) -> some View {
@@ -249,9 +247,9 @@ struct StockDetailsView: View {
                     Spacer()
                     
                 }
-            }
+            }.padding(.bottom)
             HStack {
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text("IPO StartDate:").font(.system(size: 15)).fontWeight(.bold)
                     Text("Industry:").font(.system(size: 15)).fontWeight(.bold)
                     Text("Webpage:").font(.system(size: 15)).fontWeight(.bold)
@@ -260,7 +258,7 @@ struct StockDetailsView: View {
                 
                 Spacer(minLength: 50)
                 
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text("\(companyProfile.ipo)").font(.system(size: 15))
                     Text("\(companyProfile.industry)").font(.system(size: 15))
                     Link(companyProfile.webpage, destination: URL(string: companyProfile.webpage)!).font(.system(size: 15))
@@ -321,11 +319,11 @@ struct StockDetailsView: View {
                         Text("MSPR")
                             .fontWeight(.bold)
                         Divider().padding(.trailing)
-                        Text(formatNumber(sentimentData.totalMSPR))
+                        Text("\(sentimentData.totalMSPR, specifier: "%.2f")")
                         Divider().padding(.trailing)
-                        Text(formatNumber(sentimentData.positiveMSPR))
+                        Text("\(sentimentData.positiveMSPR, specifier: "%.2f")")
                         Divider().padding(.trailing)
-                        Text(formatNumber(sentimentData.negativeMSPR))
+                        Text("\(sentimentData.negativeMSPR, specifier: "%.2f")")
                         Divider().padding(.trailing)
                     }
                     
@@ -335,11 +333,11 @@ struct StockDetailsView: View {
                         Text("Change")
                             .fontWeight(.bold)
                         Divider()
-                        Text(formatNumber(sentimentData.totalChange))
+                        Text("\(sentimentData.totalChange, specifier: "%d")")
                         Divider()
-                        Text(formatNumber(sentimentData.positiveChange))
+                        Text("\(sentimentData.positiveChange, specifier: "%d")")
                         Divider()
-                        Text(formatNumber(sentimentData.negativeChange))
+                        Text("\(sentimentData.negativeChange, specifier: "%d")")
                         Divider()
                     }
                     

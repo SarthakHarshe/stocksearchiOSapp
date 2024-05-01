@@ -52,6 +52,10 @@ struct TradeSheetView: View {
                     tradeFormView()
                 }
             }
+            .navigationBarItems(trailing: Button(action: { isPresented = false }) {
+                            Image(systemName: "xmark")
+                                .foregroundColor(.black)
+                        })
             .navigationBarTitleDisplayMode(.inline)
         }
     }
