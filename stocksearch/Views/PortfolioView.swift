@@ -78,11 +78,19 @@ struct PortfolioStockRow: View {
 
     private var priceChangeView: some View {
         HStack(spacing: 2) {
-            Image(systemName: stock.changeFromTotalCost >= 0 ? "arrow.up.right" : "arrow.down.right")
-                .foregroundColor(stock.changeFromTotalCost >= 0 ? .green : .red)
-            Text("$\(stock.changeFromTotalCost, specifier: "%.2f") (\(stock.changeFromTotalCostPercentage, specifier: "%.2f")%)")
-                .font(.subheadline)
-                .foregroundColor(stock.changeFromTotalCost >= 0 ? .green : .red)
+            if stock.changeFromTotalCost == 0 {
+                Image(systemName: "minus")
+                    .foregroundColor(.gray)
+                Text("$\(stock.changeFromTotalCost, specifier: "%.2f") (\(stock.changeFromTotalCostPercentage, specifier: "%.2f")%)")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            } else {
+                Image(systemName: stock.changeFromTotalCost > 0 ? "arrow.up.right" : "arrow.down.right")
+                    .foregroundColor(stock.changeFromTotalCost > 0 ? .green : .red)
+                Text("$\(stock.changeFromTotalCost, specifier: "%.2f") (\(stock.changeFromTotalCostPercentage, specifier: "%.2f")%)")
+                    .font(.subheadline)
+                    .foregroundColor(stock.changeFromTotalCost > 0 ? .green : .red)
+            }
         }
     }
 }

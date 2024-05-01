@@ -65,11 +65,19 @@ struct FavoriteStockRow: View {
 
     private var priceChangeView: some View {
         HStack(spacing: 2) {
-            Image(systemName: favorite.change >= 0 ? "arrow.up.right" : "arrow.down.right")
-                .foregroundColor(favorite.change >= 0 ? .green : .red)
-            Text("$\(favorite.change, specifier: "%.2f") (\(favorite.changePercentage, specifier: "%.2f")%)")
-                .font(.subheadline)
-                .foregroundColor(favorite.change >= 0 ? .green : .red)
+            if favorite.change == 0 {
+                Image(systemName: "minus")
+                    .foregroundColor(.gray)
+                Text("$\(favorite.change, specifier: "%.2f") (\(favorite.changePercentage, specifier: "%.2f")%)")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            } else {
+                Image(systemName: favorite.change > 0 ? "arrow.up.right" : "arrow.down.right")
+                    .foregroundColor(favorite.change > 0 ? .green : .red)
+                Text("$\(favorite.change, specifier: "%.2f") (\(favorite.changePercentage, specifier: "%.2f")%)")
+                    .font(.subheadline)
+                    .foregroundColor(favorite.change > 0 ? .green : .red)
+            }
         }
     }
 }

@@ -103,21 +103,7 @@ struct HighchartsView: UIViewRepresentable {
                         },
                         xAxis: {
                             type: 'datetime',
-                            dateTimeLabelFormats: {
-                                hour: '%H:%M',
-                            },
-                            labels: {
-                              format: '{value:%H:%M}',
-                            },
-                             tickInterval: 10800 * 1000,
-                             tickPositioner: function() {
-                                    var positions = [],
-                                        interval = Math.floor((this.dataMax - this.dataMin) / 4); // Adjust the denominator to change number of ticks
-                                    for (let i = this.dataMin; i <= this.dataMax; i += interval) {
-                                        positions.push(i);
-                                    }
-                                    return positions;
-                                }
+                             tickInterval: 14400 * 1000
                         },
                         yAxis: {
                             title: {
@@ -126,6 +112,12 @@ struct HighchartsView: UIViewRepresentable {
                             opposite: true,
                             tickAmount: 4,
                         },
+                        tooltip: {
+                            split: true
+                        },
+                        legend: {
+                        enabled: false
+                        }
                         series: [{
                             name: 'Price',
                             data: \(formattedSeriesData),
@@ -139,10 +131,6 @@ struct HighchartsView: UIViewRepresentable {
                             enabled: true,
                             href: 'http://www.highcharts.com',
                             text: 'highcharts.com',
-                        },
-                        tooltip: {
-                            shared: true,
-                            xDateFormat: '%H:%M',
                         },
                         plotOptions: {
                             series: {
@@ -301,7 +289,10 @@ struct HighchartsView: UIViewRepresentable {
         stockService.fetchRecommendationTrends(symbol: symbol) { result in
             switch result {
             case .success(let trends):
-                let categories = trends.map { $0.period }.quotedJoined(separator: ",")
+                let categories = trends.map {
+                                let endIndex = $0.period.index($0.period.endIndex, offsetBy: -3)
+                                return String($0.period[..<endIndex])
+                            }.quotedJoined(separator: ",")
                 let strongBuyData = trends.map { $0.strongBuy }
                 let buyData = trends.map { $0.buy }
                 let holdData = trends.map { $0.hold }
