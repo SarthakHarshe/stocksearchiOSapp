@@ -65,11 +65,11 @@ struct PortfolioStockRow: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(stock.symbol).font(.headline)
-                Text("\(stock.quantity) shares").font(.subheadline).foregroundColor(.secondary)
+                Text("\(stock.quantity) shares").foregroundColor(.secondary)
             }
             Spacer()
             VStack(alignment: .trailing) {
-                Text("$\(stock.marketValue, specifier: "%.2f")").font(.subheadline)
+                Text("$\(stock.marketValue, specifier: "%.2f")").font(.headline)
                 priceChangeView
             }
         }

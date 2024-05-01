@@ -350,21 +350,14 @@ struct HighchartsView: UIViewRepresentable {
                         title: {
                             text: 'Number of Recommendations'
                         },
-                        stackLabels: {
-                            enabled: true,
-                            style: {
-                                fontWeight: 'bold',
-                                color: 'gray'
-                            }
-                        },
                         tickAmount: 4
                     },
                     legend: {
                         enabled: true
                     },
                     tooltip: {
-                        headerFormat: '<b>{point.x}</b><br/>',
-                        pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+                        headerFormat: '{point.x}<br/>',
+                        pointFormat: '{series.name}: {point.y}'
                     },
                     plotOptions: {
                         column: {

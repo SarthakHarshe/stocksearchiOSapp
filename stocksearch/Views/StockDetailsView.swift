@@ -129,26 +129,26 @@ struct StockDetailsView: View {
                 VStack(alignment: .leading) {
                     HStack {
                         Text("Portfolio")
-                            .font(.title2)
+                            .font(.system(size: 24))
                         Spacer()
                     }
                 }
                 .padding(.horizontal)
                 VStack(alignment: .leading, spacing: 5) {
                     HStack {
-                        VStack(alignment: .leading) {
-                            Text("Shares Owned: \(stock.quantity)")
-                            Text("Avg. Cost / Share: $\(stock.averageCost, specifier: "%.2f")")
-                            Text("Total Cost: $\(stock.totalCost, specifier: "%.2f")")
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Shares Owned: \(stock.quantity)").fontWeight(.bold).font(.system(size: 15))
+                            Text("Avg. Cost / Share: $\(stock.averageCost, specifier: "%.2f")").fontWeight(.bold).font(.system(size: 15))
+                            Text("Total Cost: $\(stock.totalCost, specifier: "%.2f")").fontWeight(.bold).font(.system(size: 15))
                             let change = (stock.currentPrice * Double(stock.quantity)) - stock.totalCost
                             HStack(spacing: 2) {
-                                Text("Change:")
-                                Text("$\(change > 0 ? "+" : "")\(change, specifier: "%.2f")")
+                                Text("Change:").fontWeight(.bold).font(.system(size: 15))
+                                Text("$\(change > 0 ? "+" : "")\(change, specifier: "%.2f")").font(.system(size: 15))
                                     .foregroundColor(change > 0 ? .green : (change < 0 ? .red : .black))
                             }
                             HStack(spacing: 2) {
-                                Text("Market Value:")
-                                Text("$\(stock.currentPrice * Double(stock.quantity), specifier: "%.2f")")
+                                Text("Market Value:").fontWeight(.bold).font(.system(size: 15))
+                                Text("$\(stock.currentPrice * Double(stock.quantity), specifier: "%.2f")").font(.system(size: 15))
                                 .foregroundColor(change > 0 ? .green : (change < 0 ? .red : .black))                            }
                         }
                         Spacer()
@@ -160,7 +160,7 @@ struct StockDetailsView: View {
                                 .padding()
                                 .padding(.horizontal, 35)
                                 .background(Color.green)
-                                .cornerRadius(20)
+                                .cornerRadius(30)
                         }
                     }
                     .padding(.horizontal)
@@ -170,8 +170,16 @@ struct StockDetailsView: View {
             }
             else {
                 VStack(alignment: .leading, spacing: 5) {
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Text("Portfolio")
+                                .font(.title2)
+                            Spacer()
+                        }
+                    }
+                    .padding()
                     HStack {
-                        VStack {
+                        VStack(alignment: .leading) {
                             Text("You have 0 shares of \(symbol).")
                             Text("Start Trading!")
                         }
@@ -182,9 +190,9 @@ struct StockDetailsView: View {
                             Text("Trade")
                                 .foregroundColor(.white)
                                 .padding()
-                                .padding(.horizontal, 35)
+                                .padding(.horizontal, 30)
                                 .background(Color.green)
-                                .cornerRadius(20)
+                                .cornerRadius(30)
                         }
                     }
                     .padding()
@@ -198,7 +206,7 @@ struct StockDetailsView: View {
             VStack {
                 HStack {
                     Text("Stats")
-                        .font(.title2)
+                        .font(.system(size: 24))
                     Spacer()
                     
                 }
@@ -207,15 +215,15 @@ struct StockDetailsView: View {
             VStack(alignment: .leading) {
                 HStack{
                     VStack(alignment: .leading) {
-                        Text("High Price: \(stockInfo.high, specifier: "%.2f")")
+                        Text("High Price: \(stockInfo.high, specifier: "%.2f")").font(.system(size: 15))
                             .padding(.vertical)
-                        Text("Low Price:  \(stockInfo.low, specifier: "%.2f")")
+                        Text("Low Price:  \(stockInfo.low, specifier: "%.2f")").font(.system(size: 15))
                     }
                     Spacer()
                     VStack(alignment: .leading) {
-                        Text("Open Price: \(stockInfo.open, specifier: "%.2f")")
+                        Text("Open Price: \(stockInfo.open, specifier: "%.2f")").font(.system(size: 15))
                             .padding(.vertical)
-                        Text("Prev. Close:  \(stockInfo.previousClose, specifier: "%.2f")")
+                        Text("Prev. Close:  \(stockInfo.previousClose, specifier: "%.2f")").font(.system(size: 15))
                     }
                     Spacer()
                 }
@@ -226,20 +234,28 @@ struct StockDetailsView: View {
     
     private func aboutSection(companyProfile: CompanyProfile) -> some View {
         VStack(alignment: .leading) {
+            VStack {
+                HStack {
+                    Text("About")
+                        .font(.system(size: 24))
+                    Spacer()
+                    
+                }
+            }
             HStack {
                 VStack(alignment: .leading) {
-                    Text("IPO StartDate:")
-                    Text("Industry:")
-                    Text("Webpage:")
-                    Text("Company Peers:")
+                    Text("IPO StartDate:").font(.system(size: 15)).fontWeight(.bold)
+                    Text("Industry:").font(.system(size: 15)).fontWeight(.bold)
+                    Text("Webpage:").font(.system(size: 15)).fontWeight(.bold)
+                    Text("Company Peers:").font(.system(size: 15)).fontWeight(.bold)
                 }
                 
                 Spacer(minLength: 50)  // Ensures some spacing even when links are present
                 
                 VStack(alignment: .leading) {
-                    Text("\(companyProfile.ipo)")
-                    Text("\(companyProfile.industry)")
-                    Link(companyProfile.webpage, destination: URL(string: companyProfile.webpage)!)
+                    Text("\(companyProfile.ipo)").font(.system(size: 15))
+                    Text("\(companyProfile.industry)").font(.system(size: 15))
+                    Link(companyProfile.webpage, destination: URL(string: companyProfile.webpage)!).font(.system(size: 15))
                         .foregroundColor(.blue)
                     
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -266,13 +282,13 @@ struct StockDetailsView: View {
             VStack {
                 HStack {
                     Text("Insights")
-                        .font(.title2)
+                        .font(.system(size: 24))
                     Spacer()
                 }
             }
             VStack {
-                Text("Insights")
-                    .font(.title2)
+                Text("Insider Sentiments")
+                    .font(.system(size: 24))
                     .frame(maxWidth: .infinity, alignment: .center)
             }
             
@@ -280,13 +296,13 @@ struct StockDetailsView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 20) {
                         Text(stockService.companyProfile?.name ?? "Company")
-                            .fontWeight(.semibold)
+                            .fontWeight(.bold)
                         Divider().padding(.trailing)
-                        Text("Total")
+                        Text("Total").fontWeight(.bold)
                         Divider().padding(.trailing)
-                        Text("Positive")
+                        Text("Positive").fontWeight(.bold)
                         Divider().padding(.trailing)
-                        Text("Negative")
+                        Text("Negative").fontWeight(.bold)
                         Divider().padding(.trailing)
                     }
                     
@@ -295,7 +311,7 @@ struct StockDetailsView: View {
                     
                     VStack(alignment: .leading, spacing: 20) {
                         Text("MSPR")
-                            .fontWeight(.semibold)
+                            .fontWeight(.bold)
                         Divider().padding(.trailing)
                         Text(formatNumber(sentimentData.totalMSPR))
                         Divider().padding(.trailing)
@@ -309,7 +325,7 @@ struct StockDetailsView: View {
                     
                     VStack(alignment: .leading, spacing: 20) {
                         Text("Change")
-                            .fontWeight(.semibold)
+                            .fontWeight(.bold)
                         Divider()
                         Text(formatNumber(sentimentData.totalChange))
                         Divider()

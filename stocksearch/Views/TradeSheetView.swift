@@ -100,7 +100,7 @@ struct TradeSheetView: View {
                     .padding()
                     .padding(.horizontal, 50)
                     .background(Color.green)
-                    .cornerRadius(20)
+                    .cornerRadius(30)
                     Spacer()
                     
                     Button("Sell") {
@@ -110,7 +110,7 @@ struct TradeSheetView: View {
                     .padding()
                     .padding(.horizontal, 50)
                     .background(Color.green)
-                    .cornerRadius(20)
+                    .cornerRadius(30)
                     Spacer()
                 }
             }

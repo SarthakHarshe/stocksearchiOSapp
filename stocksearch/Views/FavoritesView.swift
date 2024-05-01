@@ -52,11 +52,11 @@ struct FavoriteStockRow: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(favorite.symbol).font(.headline)
-                Text(favorite.name).font(.subheadline).foregroundColor(.secondary)
+                Text(favorite.name).foregroundColor(.secondary)
             }
             Spacer()
             VStack(alignment: .trailing) {
-                Text("$\(favorite.currentPrice, specifier: "%.2f")").font(.subheadline)
+                Text("$\(favorite.currentPrice, specifier: "%.2f")").font(.headline)
                 priceChangeView
             }
         }

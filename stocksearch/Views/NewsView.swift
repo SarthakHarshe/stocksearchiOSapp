@@ -76,14 +76,14 @@ struct NewsDetailView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    Text(article.source).font(.headline)
+                VStack(alignment: .leading) {
+                    Text(article.source).font(.title).fontWeight(.bold)
                     Text(article.datetime.formattedDate()).foregroundColor(.secondary)
                     Divider()
-                    Text(article.headline).font(.title)
+                    Text(article.headline).font(.title2).fontWeight(.bold)
                     Text(article.summary).font(.body)
                     HStack {
-                                            Text("For more details click ")
+                                            Text("For more details click ").foregroundColor(.secondary)
                                             Button("here") {
                                                 if let url = URL(string: article.url), UIApplication.shared.canOpenURL(url) {
                                                     UIApplication.shared.open(url)
@@ -93,10 +93,10 @@ struct NewsDetailView: View {
                                         }
                     HStack {
                         Link(destination: URL(string:"https://twitter.com/intent/tweet?text=\(article.headline )&url=\(article.url)")!){
-                                            Image("Twitter").resizable().imageScale(.small).frame(width: 35,height: 35)
+                                            Image("Twitter").resizable().imageScale(.small).frame(width: 50,height: 50)
                         }
                         Link(destination:URL(string: "https://www.facebook.com/sharer/sharer.php?u=\(self.article.url)&amp;src=sdkpreparse")!){
-                            Image("Facebook").resizable().imageScale(.small).frame(width: 35,height: 35)
+                            Image("Facebook").resizable().imageScale(.small).frame(width: 50,height: 50)
                             }
                     }
                                     
