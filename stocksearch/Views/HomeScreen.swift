@@ -51,6 +51,7 @@ struct HomeScreen: View {
                             .onMove(perform: portfolioViewModel.moveStock)
                             .onAppear {
                                 portfolioViewModel.fetchPortfolio()
+                                portfolioViewModel.fetchUserData()
                             }
                         }
                         

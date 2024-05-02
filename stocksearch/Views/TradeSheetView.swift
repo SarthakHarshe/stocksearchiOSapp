@@ -25,7 +25,7 @@ struct TradeSheetView: View {
     let tradeType: TradeType
     let stockDetailsModel: StockDetailsModel
     
-
+    
     
     @State private var quantityString = ""
     @State private var showSuccessScreen = false
@@ -39,8 +39,8 @@ struct TradeSheetView: View {
     }
     
     private var currentStockPrice: Double {
-            stockDetailsModel.stockInfo?.currentPrice ?? 0
-        }
+        stockDetailsModel.stockInfo?.currentPrice ?? 0
+    }
     
     private var calculatedCost: Double {
         (Double(quantityString) ?? 0) * currentStockPrice
@@ -54,9 +54,9 @@ struct TradeSheetView: View {
                 } else {
                     tradeFormView()
                         .navigationBarItems(trailing: Button(action: { isPresented = false }) {
-                                        Image(systemName: "xmark")
-                                            .foregroundColor(.black)
-                                    })
+                            Image(systemName: "xmark")
+                                .foregroundColor(.black)
+                        })
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -71,23 +71,34 @@ struct TradeSheetView: View {
             Spacer()
             
             VStack {
-                HStack {
-                    TextField("0", text: $quantityString)
-                        .keyboardType(.numberPad)
-                        .padding()
-                        .font(.system(size: 100))
-                    Spacer()
-                HStack {
-                    Spacer()
-                    VStack {
+                VStack {
+                    HStack {
+                        TextField("0", text: $quantityString)
+                            .keyboardType(.numberPad)
+                            .padding()
+                            .font(.system(size: 100))
+                        Spacer()
                         HStack {
                             Spacer()
-                            Text(quantityString <= "1" ? "Share" : "Shares")
-                        }.padding().font(.largeTitle)
-                        Text("x\(currentStockPrice, specifier: "%.2f")/share = \(calculatedCost, specifier: "%.2f")").padding(.horizontal)
-                    }.padding(.top, 60)
+                            VStack {
+                                VStack {
+                                    HStack {
+                                        Spacer()
+                                        Text(quantityString <= "1" ? "Share" : "Shares")
+                                    }.padding().font(.largeTitle)
+                                }
+                                
+                            }.padding(.top, 60)
+                        }
                     }
                 }
+                VStack{
+                    HStack {
+                        Spacer()
+                        Text("x\(currentStockPrice, specifier: "%.2f")/share = \(calculatedCost, specifier: "%.2f")").font(.system(size: 14)).padding(.horizontal).lineLimit(1)
+                    }
+                }
+                
             }
             
             Spacer()
@@ -160,8 +171,8 @@ struct TradeSheetView: View {
         .opacity(showSuccessScreen ? 1 : 0)
         .animation(.easeIn(duration: 0.8), value: showSuccessScreen)
     }
-
-
+    
+    
     
     private func confirmTrade(isBuy: Bool) {
         guard let quantity = Int(quantityString) else {
@@ -174,7 +185,7 @@ struct TradeSheetView: View {
             showLocalToast(message: "Cannot \(action) non-positive shares")
             return
         }
-
+        
         if isBuy {
             if calculatedCost > availableBalance {
                 showLocalToast(message: "Not enough money to buy")
@@ -202,9 +213,9 @@ struct TradeSheetView: View {
                     case .success:
                         self.showSuccessScreen = true
                         self.successMessage = "You have successfully sold \(quantity) \(quantity == 1 ? "share" : "shares") of \(symbol)."
-                        if stock.quantity == quantity { 
-                                        self.shouldDismissParent = true
-                                    }
+                        if stock.quantity == quantity {
+                            self.shouldDismissParent = true
+                        }
                     case .failure(let error):
                         self.showLocalToast(message: error.localizedDescription)
                     }
@@ -213,8 +224,8 @@ struct TradeSheetView: View {
         }
     }
     
-
-
+    
+    
     
     private func showLocalToast(message: String) {
         toastMessage = message

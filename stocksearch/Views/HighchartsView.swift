@@ -91,7 +91,7 @@ struct HighchartsView: UIViewRepresentable {
                                             style: {
                                                 fontFamily: 'Arial',
                                             },
-                                            height: '85%'
+                                            height: '90%'
                                         },
                                         title: {
                                             text: '\(symbol) Hourly Price Variation',
@@ -175,7 +175,7 @@ struct HighchartsView: UIViewRepresentable {
                 let jsChartData = """
                 {
                     chart: {
-                                height: '85%'
+                                height: '90%'
                     },
                     legend: {
                         enabled: false,
@@ -188,6 +188,9 @@ struct HighchartsView: UIViewRepresentable {
                     },
                     subtitle: {
                         text: 'With SMA and Volume by Price technical indicators'
+                    },
+                    navigator: {
+                        enabled: true
                     },
                     yAxis: [
                             {
@@ -261,7 +264,10 @@ struct HighchartsView: UIViewRepresentable {
                         zIndex: 1,
                         marker: {
                             enabled: false
-                        }
+                        },
+                    params: {
+                                period: 14
+                            }
                     }]
                 }
                 """
