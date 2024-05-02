@@ -197,14 +197,13 @@ struct TradeSheetView: View {
                 return
             }
             portfolioViewModel.sellStock(symbol: symbol, quantity: quantity, price: currentStockPrice) { result in
-                print("RESULTS IN TRADESHEETVIEW: \(result)")
                 DispatchQueue.main.async {
                     switch result {
                     case .success:
                         self.showSuccessScreen = true
                         self.successMessage = "You have successfully sold \(quantity) \(quantity == 1 ? "share" : "shares") of \(symbol)."
-                        if stock.quantity == quantity { // Check if all shares sold
-                                        self.shouldDismissParent = true  // Set the flag to true
+                        if stock.quantity == quantity { 
+                                        self.shouldDismissParent = true
                                     }
                     case .failure(let error):
                         self.showLocalToast(message: error.localizedDescription)
