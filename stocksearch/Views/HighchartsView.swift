@@ -240,13 +240,10 @@ struct HighchartsView: UIViewRepresentable {
                         id: '\(self.symbol)',
                         zIndex: 2,
                         data: [\(ohlcData)],
-                        color: 'black',
-                        upColor: 'black',
                     }, {
                         type: 'column',
                         name: 'Volume',
                         id: 'volume',
-                        color: 'violet',
                         data: [\(volumeData)],
                         yAxis: 1
                     }, {

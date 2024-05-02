@@ -164,7 +164,7 @@ struct StockDetailsView: View {
                             let change = (stock.currentPrice * Double(stock.quantity)) - stock.totalCost
                             HStack(spacing: 2) {
                                 Text("Change:  ").fontWeight(.bold).font(.system(size: 15)) +
-                                Text("$\(change > 0 ? "+" : "")\(change, specifier: "%.2f")").font(.system(size: 15))
+                                Text("$\(change, specifier: "%.2f")").font(.system(size: 15))
                                     .foregroundColor(change > 0 ? .green : (change < 0 ? .red : .black))
                             }
                             
