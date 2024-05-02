@@ -86,6 +86,7 @@ struct HomeScreen: View {
                 }
                 .onAppear {
                     portfolioViewModel.fetchPortfolio()
+                    portfolioViewModel.fetchUserData()
                 }
                 .toolbar {
                     EditButton()
