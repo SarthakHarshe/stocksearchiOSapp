@@ -241,7 +241,7 @@ struct TradeSheetView: View {
                 VStack {
                     Spacer()
                     Text(toastMessage)
-                        .padding(30)
+                        .padding(20)
                         .background(Color.gray)
                         .foregroundColor(.white.opacity(0.60))
                         .cornerRadius(50)
