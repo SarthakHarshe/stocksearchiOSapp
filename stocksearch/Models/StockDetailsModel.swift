@@ -265,7 +265,6 @@ class StockDetailsModel: ObservableObject {
            }
 
            group.notify(queue: .main) {
-//               self.isChartReady = true
                print("All fetch operations completed inside the fetchalldata function")
                completion()
            }

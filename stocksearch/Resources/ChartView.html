@@ -84,7 +84,8 @@
      }
 
 
- //For console.log to be seen in xcode console we added Javascript code to send log messages to the native side
+ //For console.log to be seen in xcode console we added Javascript code to send log messages to the native side credits to ChatGPT.
+ 
  var oldLog = console.log;
     console.log = function (message) {
         window.webkit.messageHandlers.logHandler.postMessage(message);

@@ -68,7 +68,7 @@ class FavoritesViewModel: ObservableObject {
     }
 
 
-    
+//   Autoupdate code made optional.
 //    func startUpdatingFavorites() {
 //           // Start a timer that triggers every 15 seconds
 //           timer = Timer.publish(every: 15, on: .main, in: .common).autoconnect()

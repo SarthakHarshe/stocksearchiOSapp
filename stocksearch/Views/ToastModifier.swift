@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// Credits to ChatGPT for the animation and transition code.
 struct ToastModifier: ViewModifier {
     @ObservedObject private var toastManager = GlobalToastManager.shared
 

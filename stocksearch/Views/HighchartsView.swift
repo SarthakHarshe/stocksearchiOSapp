@@ -21,6 +21,8 @@ struct HighchartsView: UIViewRepresentable {
     let symbol: String
     let chartType: ChartType
     
+    
+//    Credits to ChatGPT for the help with the Webview function
     func makeUIView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         let contentPreferences = WKWebpagePreferences()
@@ -165,7 +167,6 @@ struct HighchartsView: UIViewRepresentable {
                 }
     }
     
-    // Function for the sma chart
     private func injectSMAChartData(_ webView: WKWebView) {
         let historicalData = stockService.historicalChartData
         
