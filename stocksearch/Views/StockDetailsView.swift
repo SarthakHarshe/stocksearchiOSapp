@@ -8,6 +8,7 @@
 import SwiftUI
 import WebKit
 import Kingfisher
+import LazyViewSwiftUI
 
 struct StockDetailsView: View {
     let symbol: String
@@ -22,7 +23,8 @@ struct StockDetailsView: View {
     @State private var toastMessage: String?
     @State private var showToast = false
     @State private var shouldNavigateBack = false  // State to handle navigation
-
+    
+    
     
     var body: some View {
         ScrollView {
@@ -30,7 +32,14 @@ struct StockDetailsView: View {
                 if stockService.isDataLoaded == false {
                     Spacer()
                     ProgressView("Fetching Data...").padding(.top, 300)
-                } else if let stockInfo = stockService.stockInfo, let companyProfile = stockService.companyProfile, stockService.isDataLoaded {
+                        .onAppear {
+                            if !stockService.isDataLoaded {
+                                stockService.loadData() {
+                                    print("Data fetching triggered from view appearance.")
+                                }
+                            }
+                        }
+                } else if let stockInfo = stockService.stockInfo, let companyProfile = stockService.companyProfile {
                     stockDetailsContent(stockInfo: stockInfo, companyProfile: companyProfile)
                 } else {
                     Text("Failed to load stock details.").padding(.top, 300)
@@ -39,9 +48,6 @@ struct StockDetailsView: View {
             .padding()
             .navigationBarTitle(stockService.isDataLoaded ? symbol : "")
             .navigationBarItems(trailing: stockService.isDataLoaded ? favoriteButton : nil)
-            .onAppear {
-                stockService.fetchDataIfNeeded()
-            }
             .sheet(isPresented: $showingTradeSheet) {
                 TradeSheetView(isPresented: $showingTradeSheet, shouldDismissParent: $shouldNavigateBack, symbol: symbol, tradeType: self.tradeType, stockDetailsModel: stockService)
                     .environmentObject(portfolioViewModel)
@@ -275,15 +281,18 @@ struct StockDetailsView: View {
                     
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 7) {
-                            ForEach(stockService.companyPeers.filter { !$0.contains(".") }, id: \.self) { peer in
-                                NavigationLink(destination: StockDetailsView(symbol: peer, stockService: StockDetailsModel(symbol: peer))) {
-                                    Text(peer)
+                            let filteredPeers = stockService.companyPeers.filter { !$0.contains(".") }
+                            ForEach(Array(filteredPeers.enumerated()), id: \.element) { index, peer in
+                                NavigationLink(destination: LazyView(StockDetailsView(symbol: peer, stockService: StockDetailsModel(symbol: peer)))) {
+                                    Text("\(peer)\(index < filteredPeers.count - 1 ? ", " : "")")
                                         .foregroundColor(.blue)
                                         .font(.system(size: 14))
                                 }
                             }
                         }
                     }
+
+
                 }
                 
                 Spacer()

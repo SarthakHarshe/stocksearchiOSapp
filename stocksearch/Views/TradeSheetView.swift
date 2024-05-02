@@ -39,8 +39,8 @@ struct TradeSheetView: View {
     }
     
     private var currentStockPrice: Double {
-        portfolioViewModel.stocks.first(where: { $0.symbol == symbol })?.currentPrice ?? 0
-    }
+            stockDetailsModel.stockInfo?.currentPrice ?? 0
+        }
     
     private var calculatedCost: Double {
         (Double(quantityString) ?? 0) * currentStockPrice
@@ -197,6 +197,7 @@ struct TradeSheetView: View {
                 return
             }
             portfolioViewModel.sellStock(symbol: symbol, quantity: quantity, price: currentStockPrice) { result in
+                print("RESULTS IN TRADESHEETVIEW: \(result)")
                 DispatchQueue.main.async {
                     switch result {
                     case .success:

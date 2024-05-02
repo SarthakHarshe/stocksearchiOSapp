@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import LazyViewSwiftUI
 
 struct HomeScreen: View {
     @StateObject var dateViewModel = DateViewModel()
@@ -16,7 +17,7 @@ struct HomeScreen: View {
     
     var body: some View {
         if !portfolioViewModel.isDataLoadedforportfolio || !favoritesViewModel.isDataLoadedforfavorites {
-            ProgressView("Loading....")
+            ProgressView("Fetching Data...")
                 .navigationTitle("Stocks")
                 .navigationBarHidden(true)
         } else {
@@ -24,7 +25,7 @@ struct HomeScreen: View {
                 List {
                     if !searchViewModel.searchText.isEmpty {
                         ForEach(searchViewModel.searchResults) { stockSymbol in
-                            NavigationLink(destination: StockDetailsView(symbol: stockSymbol.symbol, stockService: StockDetailsModel(symbol: stockSymbol.symbol))) {
+                            NavigationLink(destination: LazyView(StockDetailsView(symbol: stockSymbol.symbol, stockService: StockDetailsModel(symbol: stockSymbol.symbol)))) {
                                 VStack(alignment: .leading) {
                                     Text(stockSymbol.symbol)
                                         .font(.headline)
@@ -43,7 +44,7 @@ struct HomeScreen: View {
                         Section(header: Text("Portfolio")) {
                             PortfolioView(viewModel: portfolioViewModel).headerView
                             ForEach(portfolioViewModel.stocks) { stock in
-                                NavigationLink(destination: StockDetailsView(symbol: stock.symbol, stockService: StockDetailsModel(symbol: stock.symbol))) {
+                                NavigationLink(destination: LazyView(StockDetailsView(symbol: stock.symbol, stockService: StockDetailsModel(symbol: stock.symbol)))) {
                                     PortfolioStockRow(stock: stock) // Using the row view here
                                 }
                             }
@@ -55,7 +56,7 @@ struct HomeScreen: View {
                         
                         Section(header: Text("Favorites")) {
                             ForEach(favoritesViewModel.favorites) { favorite in
-                                NavigationLink(destination: StockDetailsView(symbol: favorite.symbol, stockService: StockDetailsModel(symbol: favorite.symbol))) {
+                                NavigationLink(destination: LazyView(StockDetailsView(symbol: favorite.symbol, stockService: StockDetailsModel(symbol: favorite.symbol)))) {
                                     FavoriteStockRow(favorite: favorite)
                                 }
                             }
@@ -81,6 +82,9 @@ struct HomeScreen: View {
                     if newValue.isEmpty {
                         searchViewModel.searchResults.removeAll()
                     }
+                }
+                .onAppear {
+                    portfolioViewModel.fetchPortfolio()
                 }
                 .toolbar {
                     EditButton()

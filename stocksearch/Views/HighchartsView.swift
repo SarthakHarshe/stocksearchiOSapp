@@ -78,9 +78,8 @@ struct HighchartsView: UIViewRepresentable {
     }
     
     private func injectJavaScript(_ webView: WKWebView){
-        stockService.fetchHourlyChartData(symbol: symbol) { result in
-            switch result {
-            case .success(let chartData):
+                let chartData = stockService.hourlyChartData
+                print("HOURLY CHART DATA IN THE HIGHCHART VIEW")
                 let seriesData = chartData.map { "[\($0.t), \($0.c)]" }.joined(separator: ", ")
                 let formattedSeriesData = "[\(seriesData)]"
                 let lineColor = (self.stockService.stockInfo?.change ?? 0) >= 0 ? "green" : "red"
@@ -141,6 +140,9 @@ struct HighchartsView: UIViewRepresentable {
                                             split: true,
                                             crosshairs: true,
                                         },
+                                        legend: {
+                                            enabled: false,
+                                        },
                                         plotOptions: {
                                             series: {
                                                 marker: {
@@ -151,7 +153,6 @@ struct HighchartsView: UIViewRepresentable {
                                         },
                                     }
                                     """
-                print("Hourly Chart options: \(jsChartOptions)")
                 let jsCode = "updateHourlyChart(\(jsChartOptions))"
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     webView.evaluateJavaScript(jsCode) { (result, error) in
@@ -162,10 +163,6 @@ struct HighchartsView: UIViewRepresentable {
                         }
                     }
                 }
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
     }
     
     // Function for the sma chart
@@ -399,7 +396,6 @@ struct HighchartsView: UIViewRepresentable {
                         },
                     },
                     tooltip: {
-                        crosshairs: true,
                         shared: true
                     },
                     series: [{

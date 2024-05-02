@@ -24,6 +24,7 @@
 		2D4E0EE92BCBB6CE005D7C78 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 2D4E0EE82BCBB6CE005D7C78 /* Alamofire */; };
 		2D4E0EEB2BCBBAC5005D7C78 /* UserDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4E0EEA2BCBBAC5005D7C78 /* UserDataModel.swift */; };
 		2D5472412BCD1E0C00EFE040 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5472402BCD1E0C00EFE040 /* SearchViewModel.swift */; };
+		2D56E30D2BE3172C0026B621 /* LazyViewSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 2D56E30C2BE3172C0026B621 /* LazyViewSwiftUI */; };
 		2D7E9EF02BDE3CCF00A2B1B3 /* ToastOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7E9EEF2BDE3CCF00A2B1B3 /* ToastOverlay.swift */; };
 		2D9CEDB62BDDD02A000B5FEF /* NewsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9CEDB52BDDD02A000B5FEF /* NewsView.swift */; };
 		2D9CEDB92BDDD0F7000B5FEF /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 2D9CEDB82BDDD0F7000B5FEF /* Kingfisher */; };
@@ -98,6 +99,7 @@
 			files = (
 				2D9CEDB92BDDD0F7000B5FEF /* Kingfisher in Frameworks */,
 				2D4E0EE92BCBB6CE005D7C78 /* Alamofire in Frameworks */,
+				2D56E30D2BE3172C0026B621 /* LazyViewSwiftUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,6 +241,7 @@
 			packageProductDependencies = (
 				2D4E0EE82BCBB6CE005D7C78 /* Alamofire */,
 				2D9CEDB82BDDD0F7000B5FEF /* Kingfisher */,
+				2D56E30C2BE3172C0026B621 /* LazyViewSwiftUI */,
 			);
 			productName = stocksearch;
 			productReference = 2D4E0EA92BCB80AC005D7C78 /* stocksearch.app */;
@@ -315,6 +318,7 @@
 			packageReferences = (
 				2D4E0EE72BCBB6CE005D7C78 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				2D9CEDB72BDDD0F7000B5FEF /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				2D56E30B2BE3172C0026B621 /* XCRemoteSwiftPackageReference "Lazy-View-SwiftUI" */,
 			);
 			productRefGroup = 2D4E0EAA2BCB80AC005D7C78 /* Products */;
 			projectDirPath = "";
@@ -714,6 +718,14 @@
 				minimumVersion = 5.9.1;
 			};
 		};
+		2D56E30B2BE3172C0026B621 /* XCRemoteSwiftPackageReference "Lazy-View-SwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/joehinkle11/Lazy-View-SwiftUI";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		2D9CEDB72BDDD0F7000B5FEF /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -729,6 +741,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2D4E0EE72BCBB6CE005D7C78 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		2D56E30C2BE3172C0026B621 /* LazyViewSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2D56E30B2BE3172C0026B621 /* XCRemoteSwiftPackageReference "Lazy-View-SwiftUI" */;
+			productName = LazyViewSwiftUI;
 		};
 		2D9CEDB82BDDD0F7000B5FEF /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;

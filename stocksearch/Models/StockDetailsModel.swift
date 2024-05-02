@@ -141,7 +141,6 @@ extension Array where Element == InsiderSentiment.SentimentData {
 class StockDetailsModel: ObservableObject {
     @Published var stockInfo: StockInfo?
     @Published var companyProfile: CompanyProfile?
-    @Published var isLoading = true
     @Published var isFavorite = false
     private var symbol: String
     @Published var companyPeers: [String] = []
@@ -160,29 +159,26 @@ class StockDetailsModel: ObservableObject {
     private let watchlistURL = "https://assignment3-419001.wl.r.appspot.com/watchlist"
     
     
-    init(symbol: String) {
+    init(symbol: String, loadImmediately: Bool = false) {
         self.symbol = symbol
-        self.isLoading = true
-        self.isDataLoaded = false
+        print("SYMBOL FOR FETCHING: \(symbol)")
         checkIfFavorite()
     }
     
-    func fetchDataIfNeeded() {
-        if isLoading && !isDataLoaded {
-            fetchAllData {
-                DispatchQueue.main.async {
+    // Method to initiate fetching
+        func loadData(completion: @escaping () -> Void) {
+            if !isDataLoaded {
+                fetchAllData {
+                    print("Data loaded for \(self.symbol)")
                     self.isDataLoaded = true
-                    self.isLoading = false
-                    print("All data fetching operations are complete.")
+                    completion()
                 }
             }
         }
-    }
-
 
     
     func fetchAllData(completion: @escaping () -> Void) {
-           isLoading = true
+        print("SYMBOL FOR FETCHING INSIDE fetchallDATA: \(symbol)")
            let group = DispatchGroup()
 
            group.enter()
@@ -270,7 +266,7 @@ class StockDetailsModel: ObservableObject {
 
            group.notify(queue: .main) {
 //               self.isChartReady = true
-               print("All fetch operations completed.")
+               print("All fetch operations completed inside the fetchalldata function")
                completion()
            }
        }

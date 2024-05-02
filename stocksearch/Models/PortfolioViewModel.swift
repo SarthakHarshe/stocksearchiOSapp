@@ -144,16 +144,19 @@ class PortfolioViewModel: ObservableObject {
     func sellStock(symbol: String, quantity: Int, price: Double, completion: @escaping (Result<String, Error>) -> Void) {
         let sellURL = "https://assignment3-419001.wl.r.appspot.com/portfolio/sell"
         let request = SellStockRequest(symbol: symbol, quantity: quantity, price: price)
+        print("Sending request to sell stock: \(request)")
 
         AF.request(sellURL, method: .post, parameters: request, encoder: JSONParameterEncoder.default)
             .validate()
             .responseDecodable(of: BuySellResponse.self) { response in
+                print("Response from selling stock: \(response)")
                 DispatchQueue.main.async {
                     switch response.result {
                     case .success(_):
                         completion(.success("Sold \(quantity) shares of \(symbol)."))
                         self.updateData()
                     case .failure(let error):
+                        print("Error selling stock: \(error.localizedDescription)")
                         completion(.failure(error))
                     }
                 }
