@@ -17,12 +17,11 @@ struct StockDetailsView: View {
     @Environment(\.presentationMode) var presentationMode
 
     
-    // State for managing sheet presentation
     @State private var showingTradeSheet = false
     @State private var tradeType: TradeType = .buy
     @State private var toastMessage: String?
     @State private var showToast = false
-    @State private var shouldNavigateBack = false  // State to handle navigation
+    @State private var shouldNavigateBack = false
     
     
     

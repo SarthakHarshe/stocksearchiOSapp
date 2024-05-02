@@ -492,12 +492,12 @@ class StockDetailsModel: ObservableObject {
     }
 
     struct HistoricalChartResult: Decodable {
-        let t: Int        // Timestamp
-        let o: Double     // Open price
-        let h: Double     // High price
-        let l: Double     // Low price
-        let c: Double     // Close price
-        let v: Int        // Volume
+        let t: Int
+        let o: Double     
+        let h: Double
+        let l: Double
+        let c: Double
+        let v: Int
     }
 
 

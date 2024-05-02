@@ -429,7 +429,7 @@ struct HighchartsView: UIViewRepresentable {
 
     
     
-    // Helper function to convert timestamp milliseconds to UTC Date components
+
     private func convertToUTCDate(milliseconds: Int) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(milliseconds / 1000))
         let calendar = Calendar(identifier: .gregorian)

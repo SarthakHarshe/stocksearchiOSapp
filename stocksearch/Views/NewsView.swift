@@ -18,7 +18,7 @@ struct NewsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             if isFirstArticle {
-                // First article layout
+              
                 if let imageUrl = URL(string: article.image), !article.image.isEmpty {
                     KFImage(imageUrl)
                         .resizable()
@@ -35,7 +35,7 @@ struct NewsView: View {
                 Text(article.headline).font(.headline)
                 Divider()
             } else {
-                // Rest of the articles layout
+              
                 HStack {
                     VStack(alignment: .leading) {
                         HStack {
@@ -117,21 +117,19 @@ extension Int64 {
     func formattedDate() -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(self))
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM dd, yyyy"  // Example: January 01, 2022
+        formatter.dateFormat = "MMMM dd, yyyy"
         return formatter.string(from: date)
     }
 }
 
 
-// Dummy implementation for the preview
 extension TimeInterval {
     func timeAgo() -> String {
-        // Your implementation here
         return "5m"
     }
 }
 
-// Preview Provider
+
 struct NewsView_Previews: PreviewProvider {
     static var previews: some View {
         let article = NewsArticle(

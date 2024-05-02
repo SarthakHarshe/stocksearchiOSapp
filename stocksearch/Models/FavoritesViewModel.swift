@@ -101,11 +101,11 @@ class FavoritesViewModel: ObservableObject {
     
     func moveFavorite(from source: IndexSet, to destination: Int) {
         favorites.move(fromOffsets: source, toOffset: destination)
-        // Update the server if necessary
+       
     }
 }
 
-// StockQuote structure to decode the response from /stock_quote
+
 struct DetailedStockQuote: Codable {
     let currentPrice: Double
     let change: Double

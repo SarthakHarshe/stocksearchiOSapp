@@ -8,7 +8,7 @@
 import SwiftUI
 
 class GlobalToastManager: ObservableObject {
-    static let shared = GlobalToastManager()  // Singleton instance for global access
+    static let shared = GlobalToastManager()
 
     @Published var isShowing = false
     @Published var message = ""
@@ -22,7 +22,7 @@ class GlobalToastManager: ObservableObject {
             }
             self.message = message
             self.isShowing = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {  // Auto dismiss after 3 seconds (change it to lesser time check video)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 self.isShowing = false
             }
         }

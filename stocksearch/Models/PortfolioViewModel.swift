@@ -21,19 +21,18 @@ class PortfolioViewModel: ObservableObject {
     
     
 
-    // URLs for the backend endpoints
+
     private let portfolioURL = "https://assignment3-419001.wl.r.appspot.com/portfolio"
     private let quoteURL = "https://assignmenst3-419001.wl.r.appspot.com/stock_quote"
     private let userDataURL = "https://assignment3-419001.wl.r.appspot.com/userdata"
 
-    // Initialize to fetch data
     init() {
         fetchUserData()
         fetchPortfolio()
         self.isDataLoadedforportfolio = false
     }
 
-    // Fetch user data to get the wallet balance
+
     func fetchUserData() {
         AF.request(userDataURL, method: .get)
             .validate()
@@ -50,7 +49,7 @@ class PortfolioViewModel: ObservableObject {
             }
     }
 
-    // Fetch the portfolio data
+  
     func fetchPortfolio() {
         isLoading = true
         AF.request(portfolioURL, method: .get)
@@ -69,14 +68,14 @@ class PortfolioViewModel: ObservableObject {
             }
     }
 
-    // Update stock prices using the stock_quote endpoint
+   
     func updateStockPrices() {
         for stock in stocks {
             fetchLatestPrice(for: stock)
         }
     }
 
-    // Fetch the latest price for a given stock
+
     func fetchLatestPrice(for stock: Stock) {
         AF.request("https://assignment3-419001.wl.r.appspot.com/stock_quote?symbol=\(stock.symbol)", method: .get)
             .validate()
@@ -93,7 +92,7 @@ class PortfolioViewModel: ObservableObject {
             }
     }
 
-    // Calculate the net worth as the sum of the market values of all stocks plus the cash balance
+   
     func calculateNetWorth() {
         if let cash = cashBalance {
             netWorth = stocks.reduce(cash) { (result, stock) -> Double in
@@ -108,11 +107,11 @@ class PortfolioViewModel: ObservableObject {
             .sink { [weak self] _ in
                 self?.updateStockPrices()
                 self?.calculateNetWorth()
-                // Optionally update other values like Net Worth if they depend on other data
+                
             }
     }
     
-    // Call this function to stop the timer if needed
+   
         func stopUpdatingPrices() {
             timer?.cancel()
         }
@@ -206,11 +205,11 @@ class PortfolioViewModel: ObservableObject {
 
 }
 
-// Data structures for decoding JSON from the backend
+
 struct StockQuote: Codable {
     var currentPrice: Double
     enum CodingKeys: String, CodingKey {
-        case currentPrice = "c"  // Key in JSON that holds the current price
+        case currentPrice = "c" 
     }
 }
 
